@@ -126,6 +126,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# La API usa la sesión de Django. Esta opción mantiene la autenticación y el
+# cierre de sesión en el servidor y permite proteger las peticiones mutables
+# del cliente web mediante CSRF, sin almacenar credenciales en localStorage.
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+}
+
 # Manejo de Imagenes
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join (BASE_DIR, 'media')

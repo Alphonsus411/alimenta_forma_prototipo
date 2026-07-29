@@ -22,12 +22,12 @@ Fecha de inicio: 29 de julio de 2026.
 
 ### P1 — Producto mínimo funcional
 
-- [ ] **AF-101:** conectar formularios de registro e inicio de sesión con una API autenticada.
+- [x] **AF-101:** conectar formularios de registro e inicio de sesión con una API autenticada. Se eligió sesión de Django con protección CSRF y se añadieron registro, inicio/cierre de sesión y usuario actual.
 - [x] **AF-102:** definir permisos por rol para cada endpoint, filtrar los objetos visibles y evitar acceso anónimo de escritura.
 - [ ] **AF-103:** conectar cursos, membresías, anuncios y perfil con datos reales del backend; incluir estados de carga/error/vacío.
 - [ ] **AF-104:** validar reglas de negocio (notas, aforo/asistencia, duplicidad de matrícula y rol profesor/alumno) en modelos/serializadores.
-- [ ] **AF-105:** añadir tests de API para autenticación, autorización, validaciones y respuestas CRUD. Los permisos por rol ya están cubiertos; faltan la autenticación real y las validaciones funcionales de AF-104.
-- [ ] **AF-106:** incorporar Vitest y React Testing Library en `tests/frontend/` y probar rutas, formularios y accesibilidad básica.
+- [ ] **AF-105:** añadir tests de API para autenticación, autorización, validaciones y respuestas CRUD. La autenticación y los permisos por rol ya están cubiertos; faltan las validaciones funcionales de AF-104 y ampliar las respuestas CRUD.
+- [ ] **AF-106:** incorporar Vitest y React Testing Library en `tests/frontend/` y probar rutas, formularios y accesibilidad básica. Los formularios de autenticación ya están cubiertos; faltan rutas y una revisión de accesibilidad más amplia.
 
 ### P2 — Producción y mantenimiento
 
