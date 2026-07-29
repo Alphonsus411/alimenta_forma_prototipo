@@ -34,7 +34,10 @@
 
 .hamburger {
   display: none;
-  color: var(--clr-lighterGreen)
+  color: var(--clr-lighterGreen);
+	border: 0;
+	background: transparent;
+	cursor: pointer;
 }
 
 .menu {
@@ -43,7 +46,7 @@
 }
 
 .menu li {
-	margin-right: 3rem;
+	margin-right: 1.5rem;
 }
 
 @media screen and (max-width: 800px) {

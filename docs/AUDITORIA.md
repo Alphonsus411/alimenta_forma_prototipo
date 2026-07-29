@@ -30,6 +30,7 @@ Fecha de inicio: 29 de julio de 2026.
 - [x] **AF-108:** centralizar los roles y sincronizar cada perfil con un único grupo de rol canónico, incluso ante bases vacías, grupos parciales y cambios de categoría.
 - [x] **AF-105:** añadir tests de API para autenticación, autorización, serializadores y respuestas CRUD, separados por autenticación, permisos, cursos, matrículas, asistencia, notas, archivos y roles.
 - [x] **AF-106:** incorporar Vitest y React Testing Library en `tests/frontend/` y probar rutas, navegación, formularios, estados de carga/error/vacío y accesibilidad básica.
+- [x] **AF-121:** sustituir los textos provisionales y definir las páginas públicas de empresas, empleo y área docente conforme a `PRODUCTO.md`, con navegación y pruebas de renderizado y accesibilidad.
 
 ### P1 — Ciclo formativo definido en producto
 

@@ -1,0 +1,47 @@
+.main {
+	width: min(1100px, 88%);
+	margin: 2.5rem auto 4rem;
+}
+
+.intro {
+	max-width: 760px;
+	margin-bottom: 2.5rem;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+	gap: 1.25rem;
+	padding: 0;
+}
+
+.card {
+	padding: 1.25rem;
+	border: 1px solid var(--clr-lighterGreen);
+	border-radius: 12px;
+	background: #f7fffd;
+}
+
+.card h2,
+.card h3 {
+	margin-top: 0;
+}
+
+.steps {
+	list-style: decimal;
+	padding-left: 1.5rem;
+}
+
+.steps li {
+	margin-bottom: 0.75rem;
+}
+
+.cta {
+	display: inline-block;
+	margin-top: 1rem;
+	padding: 0.8rem 1.1rem;
+	border-radius: 8px;
+	background: var(--clr-greener);
+	color: var(--clr-white);
+	font-weight: 700;
+}

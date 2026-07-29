@@ -12,12 +12,12 @@ const Header = () => {
 	}
 
 	return (
-		<div className={styles.container} >
+		<header className={styles.container} >
 			<div className={styles.appName} >
 				<h1>Alimenta</h1>
 				<h4>Forma</h4>
 			</div>
-			<div>
+			<nav aria-label="Navegación principal">
 				<ul className={click ? `${styles.menuActive}` : `${styles.menu}`} >
 					<li>
 						<Link to={'/'}>Inicio</Link>
@@ -34,17 +34,20 @@ const Header = () => {
 					<li>
 						<Link to={'/faqs'}>Preguntas Frecuentes</Link>
 					</li>
+					<li><Link to={'/coorp'}>Empresas</Link></li>
+					<li><Link to={'/jobs'}>Empleo</Link></li>
+					<li><Link to={'/teacher'}>Área docente</Link></li>
 				</ul>
-			</div>
-			<div className={styles.hamburger} onClick={handleClick} >
+			</nav>
+			<button className={styles.hamburger} onClick={handleClick} aria-label={click ? "Cerrar menú" : "Abrir menú"} aria-expanded={click} type="button">
 				{click ? (
 						<FaTimes className={styles.icon} />
 					) : (
 						<FaBars className={styles.icon} />
 					)
 				}
-			</div>
-		</div>
+			</button>
+		</header>
 	)
 }
 
