@@ -8,6 +8,19 @@ from django.db.models.signals import post_save
 from django.utils import timezone
 
 from .roles import ROLE_CHOICES, ROLE_NAMES, STUDENT, TEACHER
+from .validators import (
+  announcement_upload_to,
+  announcement_validators,
+  content_document_upload_to,
+  content_image_upload_to,
+  content_video_upload_to,
+  cv_validators,
+  document_validators,
+  image_validators,
+  profile_cv_upload_to,
+  profile_image_upload_to,
+  video_validators,
+)
 
 
 def validate_user_role(user, expected_role, field_name):
@@ -38,11 +51,17 @@ class UserType (models.Model):
 class Profile (models.Model):
   user = models.OneToOneField(User, on_delete=models.CASCADE, related_name= 'profile', verbose_name= 'Usuario')
   location = models.CharField(max_length=150, blank=True, default='', verbose_name= 'Ciudad')
-  image = models.ImageField(default='defaultUser.png', upload_to='user/', verbose_name= 'Imagen')
+  image = models.ImageField(
+    upload_to=profile_image_upload_to, validators=image_validators,
+    blank=True, null=True, verbose_name='Imagen'
+  )
   phone = models.CharField(max_length= 15, blank=True, default='', verbose_name= 'Telefono')
   description = models.CharField(max_length= 500, blank=True, default='', verbose_name= 'Descripcion')
   userType = models.ForeignKey(UserType, on_delete= models.CASCADE, verbose_name= 'Categoria')
-  cv = models.FileField(upload_to='user/',blank= True, null=True, verbose_name= 'CV')
+  cv = models.FileField(
+    upload_to=profile_cv_upload_to, validators=cv_validators,
+    blank=True, null=True, verbose_name='CV'
+  )
 
   def __str__(self):
     return self.user.username
@@ -83,7 +102,10 @@ class Offer (models.Model):
 # ANUNCIOS DE LOS MIEMBROS, RESERVADO PARA EMPRESAS --------------------------------
 
 class Announcement (models.Model):
-  detail =  models.FileField(upload_to='Announcement/', verbose_name = 'Detalle')
+  detail = models.FileField(
+    upload_to=announcement_upload_to, validators=announcement_validators,
+    verbose_name='Detalle'
+  )
   owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Usuario')
 
   def __str__(self):
@@ -98,9 +120,18 @@ class Announcement (models.Model):
 class Content (models.Model):
   title = models.CharField(max_length=150, verbose_name= 'Tutulo')
   comment = models.CharField(max_length=500, verbose_name= 'Comentario')
-  img = models.ImageField(upload_to='material/', blank= True, null= True , verbose_name= 'Material grafico')
-  doc = models.FileField(upload_to='material/', blank= True, null= True , verbose_name= 'Material escrito')
-  videos = models.FileField(upload_to='material/', blank= True, null= True , verbose_name= 'Material de video')
+  img = models.ImageField(
+    upload_to=content_image_upload_to, validators=image_validators,
+    blank=True, null=True, verbose_name='Material grafico'
+  )
+  doc = models.FileField(
+    upload_to=content_document_upload_to, validators=document_validators,
+    blank=True, null=True, verbose_name='Material escrito'
+  )
+  videos = models.FileField(
+    upload_to=content_video_upload_to, validators=video_validators,
+    blank=True, null=True, verbose_name='Material de video'
+  )
 
   def __str__(self):
     return self.title

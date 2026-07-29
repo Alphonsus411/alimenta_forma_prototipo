@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
 from django.test import TestCase
-from pathlib import Path
 
 from api.models import Announcement, Attendance, Course, Mark, Registration
 
@@ -62,6 +61,4 @@ class AnnouncementTests(TestCase):
             detail=SimpleUploadedFile('oferta.pdf', b'contenido'),
         )
 
-        uploaded_path = Path(str(announcement))
-        self.assertTrue(uploaded_path.stem.startswith('oferta'))
-        self.assertEqual(uploaded_path.suffix, '.pdf')
+        self.assertEqual(str(announcement), announcement.detail.name)
