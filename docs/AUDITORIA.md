@@ -33,7 +33,7 @@ Fecha de inicio: 29 de julio de 2026.
 
 ### P2 — Producción y mantenimiento
 
-- [ ] **AF-201:** mover secretos y configuración (`SECRET_KEY`, `DEBUG`, hosts, base de datos y CORS) a variables de entorno.
+- [x] **AF-201:** mover secretos y configuración (`SECRET_KEY`, `DEBUG`, hosts, base de datos, CORS/CSRF y almacenamiento) a variables de entorno validadas; producción rechaza secretos ausentes, `DEBUG` y hosts vacíos, y activa su endurecimiento HTTPS.
 - [ ] **AF-202:** definir almacenamiento y límites seguros para imágenes, CV, documentos y vídeos.
 - [ ] **AF-203:** añadir CI para lint, build, tests, migraciones pendientes y auditoría de dependencias.
 - [ ] **AF-204:** documentar instalación completa, variables de entorno, datos iniciales, API y despliegue.

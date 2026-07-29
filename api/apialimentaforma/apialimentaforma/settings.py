@@ -10,23 +10,41 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-import os
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
+
+from .environment import env, env_bool, env_int, env_json, env_list, load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = BASE_DIR.parent.parent
+load_dotenv(PROJECT_ROOT / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-75c-d1)1k6=-9!p@1pw1^j4zo7k7n1&oh1yoybnn5wgk5o089!'
+ENVIRONMENT = env('APP_ENV', 'development').strip().lower()
+if ENVIRONMENT not in {'development', 'test', 'production'}:
+    raise ImproperlyConfigured('APP_ENV debe ser development, test o production.')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+IS_PRODUCTION = ENVIRONMENT == 'production'
+SECRET_KEY = env(
+    'SECRET_KEY',
+    'clave-efimera-solo-para-desarrollo-no-usar-en-produccion',
+    required=IS_PRODUCTION,
+)
+if IS_PRODUCTION and len(SECRET_KEY) < 50:
+    raise ImproperlyConfigured('SECRET_KEY debe tener al menos 50 caracteres en producción.')
 
-ALLOWED_HOSTS = []
+DEBUG = env_bool('DEBUG', not IS_PRODUCTION)
+if IS_PRODUCTION and DEBUG:
+    raise ImproperlyConfigured('DEBUG no puede estar activo en producción.')
+
+ALLOWED_HOSTS = env_list('ALLOWED_HOSTS')
+if IS_PRODUCTION and not ALLOWED_HOSTS:
+    raise ImproperlyConfigured('ALLOWED_HOSTS es obligatorio en producción.')
 
 
 # Application definition
@@ -39,11 +57,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'api',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -76,10 +96,21 @@ WSGI_APPLICATION = 'apialimentaforma.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+DB_ENGINE = env('DB_ENGINE', 'django.db.backends.sqlite3')
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': DB_ENGINE,
+        'NAME': env('DB_NAME', str(BASE_DIR / 'db.sqlite3'), required=IS_PRODUCTION),
+        'USER': env('DB_USER', ''),
+        'PASSWORD': env(
+            'DB_PASSWORD',
+            '',
+            required=IS_PRODUCTION and DB_ENGINE != 'django.db.backends.sqlite3',
+        ),
+        'HOST': env('DB_HOST', ''),
+        'PORT': env('DB_PORT', ''),
+        'CONN_MAX_AGE': env_int('DB_CONN_MAX_AGE', 0),
+        'OPTIONS': env_json('DB_OPTIONS'),
     }
 }
 
@@ -118,9 +149,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = env('STATIC_URL', '/static/')
+STATIC_ROOT = Path(env('STATIC_ROOT', str(BASE_DIR / 'staticfiles')))
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -136,8 +166,40 @@ REST_FRAMEWORK = {
 }
 
 # Manejo de Imagenes
-MEDIA_URL = 'media/'
-MEDIA_ROOT = os.path.join (BASE_DIR, 'media')
+MEDIA_URL = env('MEDIA_URL', '/media/')
+MEDIA_ROOT = Path(env('MEDIA_ROOT', str(BASE_DIR / 'media')))
+
+STORAGES = {
+    'default': {
+        'BACKEND': env(
+            'STORAGE_BACKEND',
+            'django.core.files.storage.FileSystemStorage',
+        ),
+        'OPTIONS': env_json('STORAGE_OPTIONS'),
+    },
+    'staticfiles': {
+        'BACKEND': env(
+            'STATIC_STORAGE_BACKEND',
+            'django.contrib.staticfiles.storage.StaticFilesStorage',
+        ),
+        'OPTIONS': env_json('STATIC_STORAGE_OPTIONS'),
+    },
+}
+
+CORS_ALLOWED_ORIGINS = env_list('CORS_ALLOWED_ORIGINS')
+CORS_ALLOW_CREDENTIALS = env_bool('CORS_ALLOW_CREDENTIALS', True)
+CSRF_TRUSTED_ORIGINS = env_list('CSRF_TRUSTED_ORIGINS')
+
+# Estas medidas solo se activan en producción para no impedir el desarrollo HTTP local.
+if IS_PRODUCTION:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = env_int('SECURE_HSTS_SECONDS', 31536000)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', True)
+    SECURE_HSTS_PRELOAD = env_bool('SECURE_HSTS_PRELOAD', True)
+    if env_bool('TRUST_X_FORWARDED_PROTO', False):
+        SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
