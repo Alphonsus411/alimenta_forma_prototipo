@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 import styles from "./CourseCard.module.css";
 
 const CourseCard = ({ course }) => {
@@ -11,6 +12,7 @@ const CourseCard = ({ course }) => {
 				<li>Cantidad de clases: {course.classes}</li>
 				<li>Estado: {course.status_display || course.status}</li>
 			</ul>
+			<Link className={styles.link} to={`/courses/${course.id}`}>Ver detalle de {course.title}</Link>
 		</article>
 	)
 }
