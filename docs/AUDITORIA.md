@@ -27,6 +27,7 @@ Fecha de inicio: 29 de julio de 2026.
 - [ ] **AF-103:** conectar cursos, membresías, anuncios y perfil con datos reales del backend; incluir estados de carga/error/vacío.
 - [x] **AF-104:** validar reglas de negocio (escala de notas, clases y precios, identidad de asistencias, duplicidad de matrícula/notas y rol profesor/alumno) mediante validadores, validación de modelos y restricciones de base de datos.
 - [x] **AF-107:** definir la asistencia como presente/ausente y recalcular automáticamente la regularidad de la matrícula al crear, editar o eliminar asistencias.
+- [x] **AF-108:** centralizar los roles y sincronizar cada perfil con un único grupo de rol canónico, incluso ante bases vacías, grupos parciales y cambios de categoría.
 - [ ] **AF-105:** añadir tests de API para autenticación, autorización, validaciones y respuestas CRUD. La autenticación, los permisos por rol y las validaciones de dominio de AF-104 ya están cubiertos; falta ampliar las respuestas CRUD.
 - [ ] **AF-106:** incorporar Vitest y React Testing Library en `tests/frontend/` y probar rutas, formularios y accesibilidad básica. Los formularios de autenticación ya están cubiertos; faltan rutas y una revisión de accesibilidad más amplia.
 
