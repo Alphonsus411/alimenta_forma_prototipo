@@ -2,8 +2,12 @@
     display: flex;
     flex-direction: column;
     margin: 3rem auto;
-    max-width: 210px;
+    max-width: 320px;
 }
+
+.form input { width: 100%; box-sizing: border-box; margin: .5rem 0; }
+.error { color: #a00000; }
+.success { color: #176b2c; }
 
 .form button {
     margin: 1.5rem 0;

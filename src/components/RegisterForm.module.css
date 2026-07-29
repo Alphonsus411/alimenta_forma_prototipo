@@ -1,19 +1,18 @@
 .container {
 	margin: 2rem auto;
-	max-width: 200px;
+	max-width: 420px;
 }
 
-.form label{
-	margin: 1rem 0;
-}
-
-.form input {
-	margin: 1rem 0;
-}
+.field { margin: 1rem 0; }
+.field label { display: block; margin-bottom: .35rem; }
+.field input, .field select { box-sizing: border-box; width: 100%; }
 
 .form p {
 	text-align: justify;
 }
+
+.error { color: #a00000; margin: .3rem 0; }
+.success { color: #176b2c; }
 
 .form button {
 	width: 100%;
