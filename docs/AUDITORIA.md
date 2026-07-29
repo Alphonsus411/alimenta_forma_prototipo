@@ -1,0 +1,46 @@
+# Auditoría inicial y tareas del proyecto
+
+Fecha de inicio: 29 de julio de 2026.
+
+## Estado comprobado
+
+- **Frontend:** la compilación estaba bloqueada porque `Home.jsx` importaba `Announcement`, pero el archivo se llamaba `Anouncement.jsx`. ESLint también detectó 26 errores (principalmente imports de `React` innecesarios).
+- **Tests frontend:** `package.json` no contiene aún un script `test`. La siguiente iteración debe incorporar Vitest y React Testing Library.
+- **Backend:** existía únicamente el placeholder `api/tests.py`, sin casos de prueba. Django ni siquiera arrancaba porque la configuración y la ruta de documentación dependían de CoreAPI, que no estaba declarado en las dependencias directas.
+- **Modelo de usuario:** la señal que crea `Profile` no aportaba los campos obligatorios ni una categoría, por lo que crear cualquier usuario producía un error de integridad.
+- **Calidad y seguridad:** `SECRET_KEY`, `DEBUG` y hosts están codificados para desarrollo; la API expone todos los `ModelViewSet` sin permisos explícitos.
+
+## Tareas estructuradas
+
+### P0 — Bloqueos básicos
+
+- [x] **AF-001:** corregir el nombre del componente `Announcement` para que el frontend compile.
+- [x] **AF-002:** retirar la configuración obsoleta/incompleta de CoreAPI y permitir que Django arranque.
+- [x] **AF-003:** crear una suite backend real, separada por dominio.
+- [x] **AF-004:** hacer que la creación automática de perfiles sea válida y cubrirla con tests.
+- [x] **AF-005:** corregir los errores actuales de ESLint.
+
+### P1 — Producto mínimo funcional
+
+- [ ] **AF-101:** conectar formularios de registro e inicio de sesión con una API autenticada.
+- [ ] **AF-102:** definir permisos por rol para cada endpoint y evitar acceso anónimo de escritura.
+- [ ] **AF-103:** conectar cursos, membresías, anuncios y perfil con datos reales del backend; incluir estados de carga/error/vacío.
+- [ ] **AF-104:** validar reglas de negocio (notas, aforo/asistencia, duplicidad de matrícula y rol profesor/alumno) en modelos/serializadores.
+- [ ] **AF-105:** añadir tests de API para autenticación, autorización, validaciones y respuestas CRUD.
+- [ ] **AF-106:** incorporar Vitest y React Testing Library en `tests/frontend/` y probar rutas, formularios y accesibilidad básica.
+
+### P2 — Producción y mantenimiento
+
+- [ ] **AF-201:** mover secretos y configuración (`SECRET_KEY`, `DEBUG`, hosts, base de datos y CORS) a variables de entorno.
+- [ ] **AF-202:** definir almacenamiento y límites seguros para imágenes, CV, documentos y vídeos.
+- [ ] **AF-203:** añadir CI para lint, build, tests, migraciones pendientes y auditoría de dependencias.
+- [ ] **AF-204:** documentar instalación completa, variables de entorno, datos iniciales, API y despliegue.
+- [ ] **AF-205:** añadir páginas 404, gestión global de errores, SEO básico y revisión responsive/accesible.
+- [ ] **AF-206:** revisar dependencias (incluido el paquete redundante `django-rest-framework`) y fijar una política de actualizaciones.
+- [ ] **AF-207:** elegir OpenAPI (por ejemplo, una integración mantenida) y restaurar una ruta de documentación de la API; la antigua vista CoreAPI fue retirada por estar obsoleta e incompleta.
+
+## Criterio de acabado
+
+El prototipo no se considerará terminado hasta que los flujos de usuario P1 funcionen de extremo a extremo, los endpoints estén protegidos, la configuración sensible sea externa, no haya migraciones pendientes y CI ejecute correctamente lint, build y todas las suites.
+
+> La suite backend se ejecuta desde la raíz con `python api/apialimentaforma/manage.py test api.test_suite`; indicar el paquete evita que el directorio contenedor no empaquetado interfiera con el descubrimiento estándar de `unittest`.

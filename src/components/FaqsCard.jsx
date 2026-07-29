@@ -1,4 +1,3 @@
-import React from "react";
 import styles from "./FaqsCard.module.css"
 
 const FaqsCard = () => {

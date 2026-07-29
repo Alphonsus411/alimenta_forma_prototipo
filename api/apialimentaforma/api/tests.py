@@ -1,3 +1,1 @@
-from django.test import TestCase
-
-# Create your tests here.
+"""La suite del proyecto está organizada en el paquete ``api.test_suite``."""
