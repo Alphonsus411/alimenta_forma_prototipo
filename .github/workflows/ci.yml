@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Comprobar lint
+        run: npm run lint
+
+      - name: Ejecutar la suite frontend
+        run: npm test
+
+      - name: Compilar el frontend
+        run: npm run build
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: api/apialimentaforma/requirements.txt
+
+      - name: Instalar dependencias
+        run: python -m pip install -r api/apialimentaforma/requirements.txt
+
+      - name: Ejecutar la suite backend
+        run: python api/apialimentaforma/manage.py test api.test_suite
+
+      - name: Comprobar la configuración de Django
+        run: python api/apialimentaforma/manage.py check
+
+      - name: Comprobar migraciones pendientes
+        run: python api/apialimentaforma/manage.py makemigrations --check --dry-run

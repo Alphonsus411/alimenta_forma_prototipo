@@ -1,124 +1,179 @@
 # 🍽️ Alimenta Forma
 
-**Alimenta Forma** es una aplicación web moderna que combina un backend robusto en **Django** con un frontend rápido y elegante construido en **React** + **Vite**.  
-Ideal para gestionar cursos, membresías y perfiles de usuario de manera eficiente y atractiva.
+Aplicación web para gestionar cursos, membresías, anuncios, matrículas, asistencia,
+notas y perfiles. El frontend es una SPA de React y Vite; el backend expone una
+API REST con Django y Django REST Framework (DRF).
 
----
+## Tecnologías y versiones
 
-## 🚀 Tecnologías Utilizadas
+Las versiones que fija actualmente el repositorio son:
 
-| Backend                  | Frontend                      | Herramientas Adicionales       |
-|--------------------------|-------------------------------|-------------------------------|
-| 🐍 Python 3.x            | ⚛️ React 18+                   | 🛠️ ESLint (calidad de código)  |
-| 🕸️ Django 4.x             | ⚡ Vite (bundler + servidor)  | 🎨 CSS Modules (estilos scoped) |
-| 🧩 Django REST Framework | React Router (gestión rutas)  | 📦 npm (gestión frontend)       |
+- **Frontend:** Node.js 20 (versión usada por CI), React 18.2, React Router 6.23,
+  Vite 5.2, Vitest 2.1 y ESLint 8.57.
+- **Backend:** Python 3.12 (versión usada por CI), Django 5.0.6, DRF 3.15.2,
+  django-cors-headers 4.4.0 y Pillow 10.3.0.
+- **Desarrollo:** npm con instalación reproducible desde `package-lock.json` y
+  SQLite por defecto. Las dependencias Python están fijadas en
+  `api/apialimentaforma/requirements.txt`.
 
----
+## Requisitos del sistema
 
-## 🗂️ Estructura del Proyecto
+- Git.
+- Node.js 20 y npm 10 o una versión compatible con el `package-lock.json` v3.
+- Python 3.12, `pip` y el módulo `venv`.
+- Las bibliotecas del sistema que requiera Pillow en la plataforma utilizada.
+- Para producción, una base de datos soportada por Django y un servidor/proxy
+  HTTPS; SQLite se reserva para desarrollo local y pruebas.
 
-```plaintext
-/
-├── api/                       # Backend Django
-│   └── apialimentaforma/
-│       ├── api/               # App Django (modelos, vistas, migraciones...)
-│       ├── apialimentaforma/  # Configuración general (settings, urls, wsgi)
-│       └── manage.py          # Script de gestión Django
-├── src/                       # Frontend React
-│   ├── components/            # Componentes reutilizables (botones, tarjetas, formularios)
-│   ├── routes/                # Páginas principales (Home, Login, Courses, etc.)
-│   ├── assets/                # Imágenes y recursos estáticos
-│   ├── App.jsx                # Componente raíz React
-│   ├── main.jsx               # Punto de entrada React + Vite
-│   └── estilos CSS y módulos  # CSS global y módulos CSS
-├── index.html                 # Entrada HTML para Vite
-├── package.json               # Dependencias frontend
-├── requirements.txt           # Dependencias backend
-├── vite.config.js             # Configuración de Vite
-├── .eslintrc.cjs             # Configuración ESLint
-└── .gitignore                 # Archivos ignorados por Git
+## Instalación
+
+Desde la raíz del repositorio:
+
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd alimenta_forma_prototipo
+
+npm ci
+
+python -m venv .venv
+source .venv/bin/activate       # Windows PowerShell: .venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r api/apialimentaforma/requirements.txt
 ```
 
-## ⚙️ Configuración por entorno
+No se deben versionar `.env`, bases de datos SQLite, `media/`, `node_modules/`,
+`dist/`, `coverage/` ni otros artefactos generados.
 
-El backend lee primero las variables exportadas por el proceso y, si existe, el
-archivo `.env` de la raíz. Este archivo está ignorado por Git: copia la plantilla
-sin secretos y adapta sus valores para trabajar localmente.
+## Variables de entorno
+
+El backend lee primero las variables del proceso y después, para las variables
+que aún no estén definidas, el archivo `.env` de la raíz. Para desarrollo:
 
 ```bash
 cp .env.example .env
 ```
 
-Los valores definidos en el sistema tienen prioridad sobre `.env`. Las listas se
-escriben separadas por comas, los booleanos aceptan `true/false`, `1/0`,
-`yes/no` u `on/off`, y las opciones avanzadas usan objetos JSON.
+Las listas se separan por comas, los booleanos aceptan `true/false`, `1/0`,
+`yes/no` u `on/off`, y las opciones avanzadas son objetos JSON.
 
-| Variable | Obligatoria / valor predeterminado | Descripción |
+| Variable | Predeterminado / requisito | Uso |
 |---|---|---|
-| `APP_ENV` | `development` | Entorno validado: `development`, `test` o `production`. |
-| `SECRET_KEY` | Obligatoria en producción | Secreto criptográfico de Django; en producción debe tener al menos 50 caracteres. |
-| `DEBUG` | Activo salvo en producción | Modo de depuración; se rechaza explícitamente si está activo en producción. |
-| `ALLOWED_HOSTS` | Obligatoria en producción | Hosts HTTP permitidos, separados por comas. |
-| `DB_ENGINE` | `django.db.backends.sqlite3` | Backend Django de base de datos (por ejemplo, `django.db.backends.postgresql`). |
-| `DB_NAME` | SQLite local; obligatoria en producción | Nombre o ruta de la base de datos. |
-| `DB_USER` | Vacía | Usuario de base de datos. |
-| `DB_PASSWORD` | Obligatoria en producción no SQLite | Contraseña de base de datos. |
-| `DB_HOST` / `DB_PORT` | Vacías | Servidor y puerto de base de datos. |
-| `DB_CONN_MAX_AGE` | `0` | Segundos de persistencia de conexiones. |
-| `DB_OPTIONS` | `{}` | Opciones del backend de base de datos como objeto JSON. |
-| `CORS_ALLOWED_ORIGINS` | Vacía | Orígenes completos autorizados para CORS, separados por comas. |
-| `CORS_ALLOW_CREDENTIALS` | `true` | Permite enviar la cookie de sesión en peticiones CORS. |
-| `CSRF_TRUSTED_ORIGINS` | Vacía | Orígenes completos de confianza para CSRF, separados por comas. |
-| `MEDIA_URL` / `MEDIA_ROOT` | `/media/` / directorio `media` | URL pública y ruta de archivos subidos. |
-| `STATIC_URL` / `STATIC_ROOT` | `/static/` / directorio `staticfiles` | URL pública y ruta de archivos estáticos recopilados. |
-| `STORAGE_BACKEND` | `FileSystemStorage` | Clase de almacenamiento para archivos subidos. |
-| `STORAGE_OPTIONS` | `{}` | Opciones del almacenamiento principal como objeto JSON; los secretos deben residir solo en el entorno. |
-| `STATIC_STORAGE_BACKEND` | `StaticFilesStorage` | Clase de almacenamiento para estáticos. |
+| `APP_ENV` | `development` | Uno de `development`, `test` o `production`. |
+| `SECRET_KEY` | Valor inseguro solo en desarrollo; obligatoria en producción | Clave de Django, con al menos 50 caracteres en producción. |
+| `DEBUG` | Activo fuera de producción | Django rechaza `DEBUG=true` en producción. |
+| `ALLOWED_HOSTS` | Vacía; obligatoria en producción | Hosts permitidos, separados por comas. |
+| `DB_ENGINE` | `django.db.backends.sqlite3` | Motor de base de datos. |
+| `DB_NAME` | `api/apialimentaforma/db.sqlite3`; obligatoria en producción | Nombre o ruta de la base de datos. |
+| `DB_USER` | Vacía | Usuario de la base de datos. |
+| `DB_PASSWORD` | Vacía; obligatoria en producción no SQLite | Contraseña de la base de datos. |
+| `DB_HOST`, `DB_PORT` | Vacías | Servidor y puerto de la base de datos. |
+| `DB_CONN_MAX_AGE` | `0` | Persistencia de conexiones en segundos. |
+| `DB_OPTIONS` | `{}` | Opciones JSON del motor. |
+| `CORS_ALLOWED_ORIGINS` | Vacía | Orígenes del frontend autorizados, separados por comas. |
+| `CORS_ALLOW_CREDENTIALS` | `true` | Autoriza el envío de la cookie de sesión mediante CORS. |
+| `CSRF_TRUSTED_ORIGINS` | Vacía | Orígenes completos de confianza para CSRF. |
+| `MEDIA_URL`, `MEDIA_ROOT` | `/media/`, directorio `media` | URL y ubicación de archivos subidos. |
+| `STATIC_URL`, `STATIC_ROOT` | `/static/`, directorio `staticfiles` | URL y ubicación de estáticos recopilados. |
+| `STORAGE_BACKEND` | `FileSystemStorage` | Clase de almacenamiento de archivos. |
+| `STORAGE_OPTIONS` | `{}` | Opciones JSON del almacenamiento de archivos. |
+| `STATIC_STORAGE_BACKEND` | `StaticFilesStorage` | Clase de almacenamiento de estáticos. |
 | `STATIC_STORAGE_OPTIONS` | `{}` | Opciones JSON del almacenamiento de estáticos. |
-| `SECURE_HSTS_SECONDS` | `31536000` | Duración de HSTS, aplicada únicamente en producción. |
-| `SECURE_HSTS_INCLUDE_SUBDOMAINS` | `true` | Incluye subdominios en HSTS en producción. |
-| `SECURE_HSTS_PRELOAD` | `true` | Activa la directiva de precarga HSTS en producción. |
-| `TRUST_X_FORWARDED_PROTO` | `false` | Confía en `X-Forwarded-Proto: https` solo en producción; activar únicamente tras un proxy que reescriba la cabecera. |
+| `SECURE_HSTS_SECONDS` | `31536000` | Duración de HSTS en producción. |
+| `SECURE_HSTS_INCLUDE_SUBDOMAINS`, `SECURE_HSTS_PRELOAD` | `true` | Opciones de HSTS en producción. |
+| `TRUST_X_FORWARDED_PROTO` | `false` | Confía en el HTTPS indicado por un proxy controlado. |
+| `VITE_API_BASE_URL` | `/api/v1` | URL base que usa el cliente web para llamar a la API. |
 
-En producción también se activan automáticamente cookies `Secure` para sesión y
-CSRF y la redirección a HTTPS. El arranque falla de forma explícita si falta
-`SECRET_KEY`, si es demasiado corta, si faltan hosts o base de datos, si una base
-no SQLite carece de contraseña o si `DEBUG` está activo. Antes de habilitar HSTS
-o la cabecera de proxy, confirma que todo el dominio sirve HTTPS y que el proxy
-elimina cualquier cabecera aportada por el cliente.
+En producción se exigen secreto, hosts y base de datos válidos, se desactiva la
+depuración y se habilitan redirección HTTPS, cookies seguras y HSTS. Solo se debe
+activar `TRUST_X_FORWARDED_PROTO` si el proxy elimina la cabecera aportada por el
+cliente. Los secretos de base de datos o almacenamiento deben existir únicamente
+en el entorno.
 
-## 🧪 Ejecución de pruebas
+## Base de datos y migraciones
 
-### Frontend
-
-Instala las dependencias y ejecuta la suite de Vitest con React Testing Library:
+Aplica las migraciones después de configurar el entorno y antes de iniciar el
+backend. El superusuario es opcional:
 
 ```bash
-npm install
+python api/apialimentaforma/manage.py migrate
+python api/apialimentaforma/manage.py createsuperuser
+```
+
+Los tipos y grupos de rol canónicos se sincronizan desde la propia aplicación al
+crear o actualizar perfiles; no se necesita cargar un fixture inicial. Tras
+cambiar modelos, crea y revisa la migración y confirma que no falte ninguna:
+
+```bash
+python api/apialimentaforma/manage.py makemigrations
+python api/apialimentaforma/manage.py makemigrations --check --dry-run
+```
+
+## Arranque en desarrollo
+
+Ejecuta cada servicio en un terminal distinto desde la raíz:
+
+```bash
+# Terminal 1: API en http://127.0.0.1:8000/api/v1/
+python api/apialimentaforma/manage.py runserver
+
+# Terminal 2: SPA en http://127.0.0.1:5173/
+npm run dev
+```
+
+Si ambos servicios están en orígenes distintos, configura `VITE_API_BASE_URL`,
+`CORS_ALLOWED_ORIGINS` y `CSRF_TRUSTED_ORIGINS` con los orígenes completos. Para
+un despliegue, compila el frontend con `npm run build`, sirve `dist/` desde un
+servidor web y ejecuta Django mediante un servidor WSGI/ASGI de producción detrás
+de HTTPS; `runserver` y el servidor de Vite no son servidores de producción.
+
+## API y autenticación
+
+Todas las rutas parten de `/api/v1/` y terminan en `/`. La autenticación usa la
+**sesión de Django**: al iniciar sesión el backend entrega una cookie de sesión,
+que el navegador debe enviar con `credentials: "include"`. Las operaciones no
+seguras (`POST`, `PUT`, `PATCH`, `DELETE`) autenticadas requieren además el token
+CSRF en la cabecera `X-CSRFToken`. `GET /api/v1/auth/me/` establece la cookie CSRF
+y devuelve el usuario si ya existe una sesión.
+
+| Método y endpoint | Descripción | Acceso principal |
+|---|---|---|
+| `POST /api/v1/auth/register/` | Registra un usuario y su perfil. | Público. |
+| `POST /api/v1/auth/login/` | Recibe `username` y `password`; inicia la sesión. | Público. |
+| `POST /api/v1/auth/logout/` | Cierra la sesión actual. | Usuario autenticado + CSRF. |
+| `GET /api/v1/auth/me/` | Devuelve el usuario actual y prepara CSRF. | Usuario autenticado. |
+| `/api/v1/usertype/` | Catálogo de tipos de usuario. | Lectura pública; escritura de administración. |
+| `/api/v1/profile/` | Perfiles. | Propietario; administración ve y gestiona todos. |
+| `/api/v1/offer/` | Membresías/ofertas. | Lectura pública; escritura de administración. |
+| `/api/v1/Announcement/` | Anuncios. | Lectura pública; empresa propietaria o administración escribe. |
+| `/api/v1/content/` | Contenidos. | Lectura pública; escritura de administración. |
+| `/api/v1/course/` | Cursos. | Lectura pública; profesor propietario o administración escribe. |
+| `/api/v1/registration/` | Matrículas. | Alumno propietario o administración. |
+| `/api/v1/attendance/` | Asistencias de cursos. | Profesor del curso, alumno implicado o administración; la escritura corresponde al profesor/administración. |
+| `/api/v1/mark/` | Notas de cursos. | Profesor del curso, alumno implicado o administración; la escritura corresponde al profesor/administración. |
+
+Las rutas de recursos son `ModelViewSet`: la colección admite las operaciones
+permitidas en `/<recurso>/` y el detalle en `/<recurso>/<id>/`. Los filtros de
+consulta impiden que alumnos, profesores y empresas obtengan objetos privados
+ajenos aunque conozcan su identificador. Actualmente no hay una ruta OpenAPI ni
+una interfaz navegable de documentación; su incorporación se sigue en AF-207.
+
+## Calidad y pruebas
+
+Los mismos comandos se ejecutan en `.github/workflows/ci.yml` para cada `push` y
+pull request, en trabajos independientes de frontend y backend:
+
+```bash
+# Frontend
+npm run lint
 npm test
-```
+npm run build
+npm run test:coverage       # cobertura local opcional
 
-Los tests viven en `tests/frontend/`, usan `jsdom` como entorno DOM y cargan sus
-matchers y limpieza común desde `tests/frontend/setup.js`. Para generar el informe
-de cobertura en `coverage/`:
-
-```bash
-npm run test:coverage
-```
-
-### Backend Django
-
-Instala los requisitos de Python y ejecuta el paquete de pruebas por dominio:
-
-```bash
-python -m pip install -r api/apialimentaforma/requirements.txt
+# Backend
 python api/apialimentaforma/manage.py test api.test_suite
-```
-
-La suite se mantiene en `api/apialimentaforma/api/test_suite/` y separa los casos
-de autenticación, permisos, serializadores, cursos, matrículas, asistencia, notas,
-archivos y roles. La comprobación de configuración de Django se ejecuta aparte:
-
-```bash
 python api/apialimentaforma/manage.py check
+python api/apialimentaforma/manage.py makemigrations --check --dry-run
 ```
+
+La suite frontend vive en `tests/frontend/`; la suite de dominio Django está en
+`api/apialimentaforma/api/test_suite/`.
