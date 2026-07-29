@@ -1,11 +1,11 @@
 import styles from "./MembershipCard.module.css";
 import PropTypes from 'prop-types'; 
 
-const MembershipCard = ({type, detail}) => {
+const MembershipCard = ({type, detail, price}) => {
 	return (
 		<div className={styles.container}>
 			<h4>{type}</h4>
-			<h4>$20000</h4>
+			<p>${price}</p>
 			<p>incluye:</p>
 			<p>{detail}</p>
 		</div>
@@ -14,7 +14,8 @@ const MembershipCard = ({type, detail}) => {
 
 MembershipCard.propTypes = {
 	type : PropTypes.string.isRequired,
-	detail : PropTypes.string.isRequired
+	detail : PropTypes.string.isRequired,
+	price: PropTypes.number.isRequired,
 }
 
 export default MembershipCard;

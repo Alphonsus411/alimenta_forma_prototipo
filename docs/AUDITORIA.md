@@ -24,7 +24,7 @@ Fecha de inicio: 29 de julio de 2026.
 
 - [x] **AF-101:** conectar formularios de registro e inicio de sesión con una API autenticada. Se eligió sesión de Django con protección CSRF y se añadieron registro, inicio/cierre de sesión y usuario actual.
 - [x] **AF-102:** definir permisos por rol para cada endpoint, filtrar los objetos visibles y evitar acceso anónimo de escritura.
-- [ ] **AF-103:** conectar cursos, membresías, anuncios y perfil con datos reales del backend; incluir estados de carga/error/vacío.
+- [x] **AF-103:** conectar cursos, membresías, anuncios y perfil con datos reales del backend; incluir estados accesibles de carga/error/vacío, reintento y edición del perfil autenticado mediante un cliente HTTP configurable.
 - [x] **AF-104:** validar reglas de negocio (escala de notas, clases y precios, identidad de asistencias, duplicidad de matrícula/notas y rol profesor/alumno) mediante validadores, validación de modelos y restricciones de base de datos.
 - [x] **AF-107:** definir la asistencia como presente/ausente y recalcular automáticamente la regularidad de la matrícula al crear, editar o eliminar asistencias.
 - [x] **AF-108:** centralizar los roles y sincronizar cada perfil con un único grupo de rol canónico, incluso ante bases vacías, grupos parciales y cambios de categoría.
