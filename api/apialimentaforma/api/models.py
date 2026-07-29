@@ -24,10 +24,10 @@ class UserType (models.Model):
 
 class Profile (models.Model):
   user = models.OneToOneField(User, on_delete=models.CASCADE, related_name= 'profile', verbose_name= 'Usuario')
-  location = models.CharField(max_length=150, verbose_name= 'Ciudad')
+  location = models.CharField(max_length=150, blank=True, default='', verbose_name= 'Ciudad')
   image = models.ImageField(default='defaultUser.png', upload_to='user/', verbose_name= 'Imagen')
-  phone = models.CharField(max_length= 15, verbose_name= 'Telefono')
-  description = models.CharField(max_length= 500, verbose_name= 'Descripcion')
+  phone = models.CharField(max_length= 15, blank=True, default='', verbose_name= 'Telefono')
+  description = models.CharField(max_length= 500, blank=True, default='', verbose_name= 'Descripcion')
   userType = models.ForeignKey(UserType, on_delete= models.CASCADE, verbose_name= 'Categoria')
   cv = models.FileField(upload_to='user/',blank= True, null=True, verbose_name= 'CV')
 
@@ -41,7 +41,8 @@ class Profile (models.Model):
 
 def create_user_profile (sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        default_user_type, _ = UserType.objects.get_or_create(category='s')
+        Profile.objects.create(user=instance, userType=default_user_type)
         
 def save_user_profile (sender, instance, **Kwargs):
     instance.profile.save()
@@ -70,7 +71,7 @@ class Announcement (models.Model):
   owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Usuario')
 
   def __str__(self):
-    return self.title
+    return self.detail.name
 
   class Meta:  
     verbose_name = 'Anuncio'
@@ -143,6 +144,8 @@ class Attendance (models.Model):
   def updateRegistrationEnabledStatus (self):
     courseInstance = Course.objects.get(id=self.course.id)
     totalClasses = courseInstance.classes
+    if totalClasses <= 0:
+      raise ValueError('El curso debe tener al menos una clase')
     totalAbsences = Attendance.objects.filter(student=self.student, course=self.course, present=False).count()
     absencesPercent = (totalAbsences / totalClasses) * 100
     
@@ -181,8 +184,7 @@ class Mark (models.Model):
     return None
   
   def save (self, *args, **kwargs):
-    if self.mark_1 or self.mark_2 or self.mark_3:
-      self.average = self.calculate_average()
+    self.average = self.calculate_average()
     super().save(*args, **kwargs)
       
   class Meta:

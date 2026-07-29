@@ -1,4 +1,3 @@
-import React from "react";
 import FooterButtons from "./FooterButtons"
 import styles from "./LoginForm.module.css";
 

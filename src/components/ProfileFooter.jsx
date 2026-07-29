@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { FaHome, FaHeart, FaListUl, FaSearch, FaUserCircle, FaClipboardList, FaIdBadge } from "react-icons/fa";
 import styles from "./ProfileFooter.module.css";

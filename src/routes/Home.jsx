@@ -1,4 +1,3 @@
-import React from "react";
 import Header from "../components/Header";
 import Announcement from "../components/Announcement";
 import InitButtons from "../components/InitButtons";
