@@ -6,7 +6,7 @@ Fecha de inicio: 29 de julio de 2026.
 
 - **Frontend:** la compilación estaba bloqueada porque `Home.jsx` importaba `Announcement`, pero el archivo se llamaba `Anouncement.jsx`. ESLint también detectó 26 errores (principalmente imports de `React` innecesarios).
 - **Tests frontend:** `package.json` no contiene aún un script `test`. La siguiente iteración debe incorporar Vitest y React Testing Library.
-- **Backend:** existía únicamente el placeholder `api/tests.py`, sin casos de prueba. Django ni siquiera arrancaba porque la configuración y la ruta de documentación dependían de CoreAPI, que no estaba declarado en las dependencias directas.
+- **Backend:** la configuración obsoleta de CoreAPI se retiró y Django arranca correctamente. DRF resuelve ahora su clase OpenAPI mantenida por defecto; publicar el esquema y su documentación continúa pendiente en AF-207.
 - **Modelo de usuario:** la señal que crea `Profile` no aportaba los campos obligatorios ni una categoría, por lo que crear cualquier usuario producía un error de integridad.
 - **Calidad y seguridad:** `SECRET_KEY`, `DEBUG` y hosts están codificados para desarrollo; la API expone todos los `ModelViewSet` sin permisos explícitos.
 
@@ -15,7 +15,7 @@ Fecha de inicio: 29 de julio de 2026.
 ### P0 — Bloqueos básicos
 
 - [x] **AF-001:** corregir el nombre del componente `Announcement` para que el frontend compile.
-- [x] **AF-002:** retirar la configuración obsoleta/incompleta de CoreAPI y permitir que Django arranque.
+- [x] **AF-002:** retirar la configuración obsoleta/incompleta de CoreAPI y permitir que Django arranque. Comprobado con `manage.py check`; la recuperación de una ruta de documentación queda separada en AF-207.
 - [x] **AF-003:** crear una suite backend real, separada por dominio.
 - [x] **AF-004:** hacer que la creación automática de perfiles sea válida y cubrirla con tests.
 - [x] **AF-005:** corregir los errores actuales de ESLint.
