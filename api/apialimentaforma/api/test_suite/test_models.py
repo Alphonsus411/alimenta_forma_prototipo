@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import IntegrityError, transaction
 from django.test import TestCase
 from pathlib import Path
 
@@ -48,15 +49,11 @@ class AttendanceTests(TestCase):
         self.registration.refresh_from_db()
         self.assertFalse(self.registration.enabled)
 
-    def test_zero_class_course_is_rejected_when_updating_attendance(self):
+    def test_zero_class_course_is_rejected_by_database(self):
         self.course.classes = 0
-        self.course.save()
-        attendance = Attendance.objects.create(
-            course=self.course, student=self.student, present=False
-        )
 
-        with self.assertRaisesMessage(ValueError, 'al menos una clase'):
-            attendance.updateRegistrationEnabledStatus()
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            self.course.save()
 
 
 class AnnouncementTests(TestCase):
