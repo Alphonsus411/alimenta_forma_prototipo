@@ -2,10 +2,11 @@ import styles from "./TextCard.module.css";
 
 const AboutText = () => {
   return (
-		<div className={styles.container}>
-			<h4>Nosotros</h4>
-			<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait.</p>
-		</div>
+		<section className={styles.container} aria-labelledby="about-text-title">
+			<h2 id="about-text-title">Formación que mejora el trabajo diario</h2>
+			<p>En Alimenta Forma acercamos formación práctica y actualizada a quienes trabajan en alimentación y hostelería. Nuestros itinerarios abarcan manipulación y seguridad alimentaria, alérgenos, nutrición, cocina, sala, bar y gestión hostelera.</p>
+			<p>Diseñamos experiencias presenciales, online y mixtas para que cada profesional pueda aplicar lo aprendido en su puesto, avanzar en su carrera y acreditar sus competencias.</p>
+		</section>
 	)
 }
 
