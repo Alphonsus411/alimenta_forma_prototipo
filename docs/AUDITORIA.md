@@ -35,14 +35,14 @@ Fecha de inicio: 29 de julio de 2026.
 
 - [x] **AF-201:** mover secretos y configuración (`SECRET_KEY`, `DEBUG`, hosts, base de datos, CORS/CSRF y almacenamiento) a variables de entorno validadas; producción rechaza secretos ausentes, `DEBUG` y hosts vacíos, y activa su endurecimiento HTTPS.
 - [ ] **AF-202:** definir almacenamiento y límites seguros para imágenes, CV, documentos y vídeos.
-- [ ] **AF-203:** añadir CI para lint, build, tests, migraciones pendientes y auditoría de dependencias.
-- [ ] **AF-204:** documentar instalación completa, variables de entorno, datos iniciales, API y despliegue.
+- [x] **AF-203:** añadir CI con trabajos separados para frontend y backend que ejecutan lint, build, ambas suites, comprobación de Django y migraciones pendientes. La auditoría automática de dependencias se pospone hasta definir la política de AF-206.
+- [x] **AF-204:** documentar versiones, requisitos, instalación, variables de entorno, migraciones y datos iniciales, arranque/despliegue, comandos de calidad, API y autenticación por sesión con CSRF.
 - [ ] **AF-205:** añadir páginas 404, gestión global de errores, SEO básico y revisión responsive/accesible.
 - [ ] **AF-206:** revisar dependencias (incluido el paquete redundante `django-rest-framework`) y fijar una política de actualizaciones.
 - [ ] **AF-207:** elegir OpenAPI (por ejemplo, una integración mantenida) y restaurar una ruta de documentación de la API; la antigua vista CoreAPI fue retirada por estar obsoleta e incompleta.
 
 ## Criterio de acabado
 
-El prototipo no se considerará terminado hasta que los flujos de usuario P1 funcionen de extremo a extremo, los endpoints estén protegidos, la configuración sensible sea externa, no haya migraciones pendientes y CI ejecute correctamente lint, build y todas las suites.
+El prototipo no se considerará terminado hasta que los flujos de usuario P1 funcionen de extremo a extremo, los endpoints estén protegidos, la configuración sensible sea externa y CI confirme lint, build, ambas suites, configuración de Django y ausencia de migraciones pendientes.
 
 > La suite backend se ejecuta desde la raíz con `python api/apialimentaforma/manage.py test api.test_suite`; indicar el paquete evita que el directorio contenedor no empaquetado interfiera con el descubrimiento estándar de `unittest`.
