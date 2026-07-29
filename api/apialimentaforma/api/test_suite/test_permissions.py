@@ -29,7 +29,9 @@ class DomainPermissionTests(APITestCase):
     cls.mark = Mark.objects.create(course=cls.course, student=cls.student, mark_1=8)
     cls.announcement = Announcement.objects.create(
       owner=cls.company,
-      detail=SimpleUploadedFile('anuncio.txt', b'anuncio'),
+      detail=SimpleUploadedFile(
+        'anuncio.pdf', b'%PDF-1.4 anuncio', content_type='application/pdf'
+      ),
     )
 
   @classmethod
@@ -93,7 +95,12 @@ class DomainPermissionTests(APITestCase):
     self.login(self.company)
     response = self.client.post(
       reverse('announcement-list'),
-      {'detail': SimpleUploadedFile('nuevo.txt', b'nuevo'), 'owner': self.other_company.id},
+      {
+        'detail': SimpleUploadedFile(
+          'nuevo.pdf', b'%PDF-1.4 nuevo', content_type='application/pdf'
+        ),
+        'owner': self.other_company.id,
+      },
       format='multipart',
     )
     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
