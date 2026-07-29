@@ -23,10 +23,10 @@ Fecha de inicio: 29 de julio de 2026.
 ### P1 — Producto mínimo funcional
 
 - [ ] **AF-101:** conectar formularios de registro e inicio de sesión con una API autenticada.
-- [ ] **AF-102:** definir permisos por rol para cada endpoint y evitar acceso anónimo de escritura.
+- [x] **AF-102:** definir permisos por rol para cada endpoint, filtrar los objetos visibles y evitar acceso anónimo de escritura.
 - [ ] **AF-103:** conectar cursos, membresías, anuncios y perfil con datos reales del backend; incluir estados de carga/error/vacío.
 - [ ] **AF-104:** validar reglas de negocio (notas, aforo/asistencia, duplicidad de matrícula y rol profesor/alumno) en modelos/serializadores.
-- [ ] **AF-105:** añadir tests de API para autenticación, autorización, validaciones y respuestas CRUD.
+- [ ] **AF-105:** añadir tests de API para autenticación, autorización, validaciones y respuestas CRUD. Los permisos por rol ya están cubiertos; faltan la autenticación real y las validaciones funcionales de AF-104.
 - [ ] **AF-106:** incorporar Vitest y React Testing Library en `tests/frontend/` y probar rutas, formularios y accesibilidad básica.
 
 ### P2 — Producción y mantenimiento
