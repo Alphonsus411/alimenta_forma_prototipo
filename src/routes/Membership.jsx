@@ -10,7 +10,7 @@ const Membership = () => {
 		<div>
 			<Header />
 			<Title text="Nuestros Precios" />
-			<MembershipCard />
+			<MembershipCard type="Estudiante" detail="Acceso a los cursos disponibles." />
 		</div>
 	)
 }

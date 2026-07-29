@@ -32,4 +32,24 @@ describe('LoginForm', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Credenciales incorrectas');
   });
+
+  it('expone el estado de carga y evita envíos duplicados', async () => {
+    let resolveLogin;
+    login.mockReturnValue(new Promise((resolve) => { resolveLogin = resolve; }));
+    const user = userEvent.setup();
+    render(<MemoryRouter><LoginForm /></MemoryRouter>);
+
+    await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
+
+    expect(screen.getByRole('button', { name: /iniciando/i })).toBeDisabled();
+    resolveLogin({ username: 'alumna' });
+    expect(await screen.findByRole('status')).toHaveTextContent('alumna');
+  });
+
+  it('comienza sin mensajes de error ni de resultado', () => {
+    render(<MemoryRouter><LoginForm /></MemoryRouter>);
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
 });
