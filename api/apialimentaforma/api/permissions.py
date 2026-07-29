@@ -1,11 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
-
-ADMIN = 'a'
-COMPANY = 'c'
-TEACHER = 'p'
-STUDENT = 's'
+from .roles import ADMIN, COMPANY, STUDENT, TEACHER
 
 
 def has_role(user, role):

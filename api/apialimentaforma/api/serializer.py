@@ -3,6 +3,8 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from rest_framework import serializers
+
+from .roles import PUBLIC_REGISTRATION_ROLES
 from .models import UserType, Profile, Offer, Announcement, Content, Course, Registration, Attendance, Mark
 from .services.attendance import AttendanceDomainError, validate_attendance_context
 
@@ -79,7 +81,7 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
   password = serializers.CharField(write_only=True, trim_whitespace=False)
   password_confirmation = serializers.CharField(write_only=True, trim_whitespace=False)
-  category = serializers.ChoiceField(choices=('s', 'p', 'c'), write_only=True)
+  category = serializers.ChoiceField(choices=PUBLIC_REGISTRATION_ROLES, write_only=True)
 
   class Meta:
     model = User

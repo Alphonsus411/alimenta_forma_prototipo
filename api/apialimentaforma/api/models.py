@@ -7,6 +7,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models.signals import post_save
 from django.utils import timezone
 
+from .roles import ROLE_CHOICES, ROLE_NAMES, STUDENT, TEACHER
+
 
 def validate_user_role(user, expected_role, field_name):
   """Valida el rol de dominio almacenado en el perfil de un usuario."""
@@ -15,19 +17,14 @@ def validate_user_role(user, expected_role, field_name):
   except (Profile.DoesNotExist, UserType.DoesNotExist):
     role = None
   if role != expected_role:
-    role_name = 'profesor' if expected_role == 'p' else 'estudiante'
+    role_name = ROLE_NAMES[expected_role]
     raise ValidationError({field_name: f'El usuario debe tener el rol {role_name}.'})
 
 # TIPOS DE USUARIO ---------------------------------------------
 
 class UserType (models.Model):
-  categoryChoices = (
-    ('c', 'empresa'),
-    ('p', 'profesor'),
-    ('s', 'estudiante'),
-    ('a', 'administrador')
-  )
-  category = models.CharField(max_length=1, choices= categoryChoices, default= 's', verbose_name= 'Categoria')
+  categoryChoices = ROLE_CHOICES
+  category = models.CharField(max_length=1, choices=categoryChoices, default=STUDENT, verbose_name='Categoria')
 
   def __str__(self):
     return self.category
@@ -57,7 +54,7 @@ class Profile (models.Model):
 
 def create_user_profile (sender, instance, created, **kwargs):
     if created:
-        default_user_type, _ = UserType.objects.get_or_create(category='s')
+        default_user_type, _ = UserType.objects.get_or_create(category=STUDENT)
         Profile.objects.create(user=instance, userType=default_user_type)
         
 def save_user_profile (sender, instance, **Kwargs):
@@ -133,7 +130,7 @@ class Course (models.Model):
 
   def clean(self):
     super().clean()
-    validate_user_role(self.teacher, 'p', 'teacher')
+    validate_user_role(self.teacher, TEACHER, 'teacher')
   
   class Meta:
     verbose_name = 'Curso'
@@ -154,7 +151,7 @@ class Registration (models.Model):
 
   def clean(self):
     super().clean()
-    validate_user_role(self.student, 's', 'student')
+    validate_user_role(self.student, STUDENT, 'student')
   
   class Meta:
     verbose_name = 'Inscripción'
@@ -177,7 +174,7 @@ class Attendance (models.Model):
 
   def clean(self):
     super().clean()
-    validate_user_role(self.student, 's', 'student')
+    validate_user_role(self.student, STUDENT, 'student')
 
   class Meta:
     verbose_name = 'Asistencia'
@@ -192,7 +189,7 @@ class Attendance (models.Model):
 
 class Mark (models.Model):
   course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='Curso')
-  student = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'groups__name': 'estudiantes'}, verbose_name='Estudiante')
+  student = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'groups__name': ROLE_NAMES[STUDENT]}, verbose_name='Estudiante')
   mark_validators = [MinValueValidator(0), MaxValueValidator(10)]
   average_validators = [MinValueValidator(Decimal('0')), MaxValueValidator(Decimal('10'))]
   mark_1 = models.PositiveIntegerField(null=True, blank=True, validators=mark_validators, verbose_name='Nota 1')
@@ -208,7 +205,7 @@ class Mark (models.Model):
 
   def clean(self):
     super().clean()
-    validate_user_role(self.student, 's', 'student')
+    validate_user_role(self.student, STUDENT, 'student')
   
   # Calcular el promedio de las notas
   def calculate_average (self):
