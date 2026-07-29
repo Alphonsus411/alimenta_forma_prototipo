@@ -7,5 +7,11 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './tests/frontend/setup.js',
+    include: ['tests/frontend/**/*.test.{js,jsx}'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      reportsDirectory: 'coverage',
+    },
   },
 })

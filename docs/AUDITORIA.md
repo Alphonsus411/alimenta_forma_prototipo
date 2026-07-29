@@ -5,7 +5,7 @@ Fecha de inicio: 29 de julio de 2026.
 ## Estado comprobado
 
 - **Frontend:** la compilación estaba bloqueada porque `Home.jsx` importaba `Announcement`, pero el archivo se llamaba `Anouncement.jsx`. ESLint también detectó 26 errores (principalmente imports de `React` innecesarios).
-- **Tests frontend:** `package.json` no contiene aún un script `test`. La siguiente iteración debe incorporar Vitest y React Testing Library.
+- **Tests frontend:** Vitest, React Testing Library y `user-event` se ejecutan sobre jsdom desde `tests/frontend/`, con scripts para suite y cobertura.
 - **Backend:** la configuración obsoleta de CoreAPI se retiró y Django arranca correctamente. DRF resuelve ahora su clase OpenAPI mantenida por defecto; publicar el esquema y su documentación continúa pendiente en AF-207.
 - **Modelo de usuario:** la señal que crea `Profile` no aportaba los campos obligatorios ni una categoría, por lo que crear cualquier usuario producía un error de integridad.
 - **Calidad y seguridad:** `SECRET_KEY`, `DEBUG` y hosts están codificados para desarrollo; la API expone todos los `ModelViewSet` sin permisos explícitos.
@@ -28,8 +28,8 @@ Fecha de inicio: 29 de julio de 2026.
 - [x] **AF-104:** validar reglas de negocio (escala de notas, clases y precios, identidad de asistencias, duplicidad de matrícula/notas y rol profesor/alumno) mediante validadores, validación de modelos y restricciones de base de datos.
 - [x] **AF-107:** definir la asistencia como presente/ausente y recalcular automáticamente la regularidad de la matrícula al crear, editar o eliminar asistencias.
 - [x] **AF-108:** centralizar los roles y sincronizar cada perfil con un único grupo de rol canónico, incluso ante bases vacías, grupos parciales y cambios de categoría.
-- [ ] **AF-105:** añadir tests de API para autenticación, autorización, validaciones y respuestas CRUD. La autenticación, los permisos por rol y las validaciones de dominio de AF-104 ya están cubiertos; falta ampliar las respuestas CRUD.
-- [ ] **AF-106:** incorporar Vitest y React Testing Library en `tests/frontend/` y probar rutas, formularios y accesibilidad básica. Los formularios de autenticación ya están cubiertos; faltan rutas y una revisión de accesibilidad más amplia.
+- [x] **AF-105:** añadir tests de API para autenticación, autorización, serializadores y respuestas CRUD, separados por autenticación, permisos, cursos, matrículas, asistencia, notas, archivos y roles.
+- [x] **AF-106:** incorporar Vitest y React Testing Library en `tests/frontend/` y probar rutas, navegación, formularios, estados de carga/error/vacío y accesibilidad básica.
 
 ### P2 — Producción y mantenimiento
 

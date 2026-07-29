@@ -37,3 +37,40 @@ Ideal para gestionar cursos, membresías y perfiles de usuario de manera eficien
 ├── vite.config.js             # Configuración de Vite
 ├── .eslintrc.cjs             # Configuración ESLint
 └── .gitignore                 # Archivos ignorados por Git
+```
+
+## 🧪 Ejecución de pruebas
+
+### Frontend
+
+Instala las dependencias y ejecuta la suite de Vitest con React Testing Library:
+
+```bash
+npm install
+npm test
+```
+
+Los tests viven en `tests/frontend/`, usan `jsdom` como entorno DOM y cargan sus
+matchers y limpieza común desde `tests/frontend/setup.js`. Para generar el informe
+de cobertura en `coverage/`:
+
+```bash
+npm run test:coverage
+```
+
+### Backend Django
+
+Instala los requisitos de Python y ejecuta el paquete de pruebas por dominio:
+
+```bash
+python -m pip install -r api/apialimentaforma/requirements.txt
+python api/apialimentaforma/manage.py test api.test_suite
+```
+
+La suite se mantiene en `api/apialimentaforma/api/test_suite/` y separa los casos
+de autenticación, permisos, serializadores, cursos, matrículas, asistencia, notas,
+archivos y roles. La comprobación de configuración de Django se ejecuta aparte:
+
+```bash
+python api/apialimentaforma/manage.py check
+```

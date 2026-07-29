@@ -42,6 +42,21 @@ class CourseSerializer (serializers.ModelSerializer):
     read_only_fields = ('teacher',)
 
 class RegistrationSerializer (serializers.ModelSerializer):
+  def validate(self, attrs):
+    request = self.context.get('request')
+    student = request.user if request and request.user.is_authenticated else None
+    course = attrs.get('course', getattr(self.instance, 'course', None))
+    if (
+      student and course and
+      Registration.objects.exclude(pk=getattr(self.instance, 'pk', None)).filter(
+        course=course, student=student
+      ).exists()
+    ):
+      raise serializers.ValidationError({
+        'course': 'Ya existe una matrícula de este estudiante para el curso.'
+      })
+    return attrs
+
   class Meta:
     model = Registration
     fields = '__all__'
