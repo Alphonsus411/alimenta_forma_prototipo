@@ -4,6 +4,11 @@ Aplicación web para gestionar cursos, membresías, anuncios, matrículas, asist
 notas y perfiles. El frontend es una SPA de React y Vite; el backend expone una
 API REST con Django y Django REST Framework (DRF).
 
+La visión funcional, los públicos, el catálogo formativo, las modalidades y el
+ciclo completo de una acción formativa se detallan en la
+**[definición de producto](docs/PRODUCTO.md)**. Las capacidades pendientes y sus
+criterios de verificación se mantienen en la [auditoría](docs/AUDITORIA.md).
+
 ## Tecnologías y versiones
 
 Las versiones que fija actualmente el repositorio son:
