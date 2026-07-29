@@ -44,8 +44,6 @@ class AttendanceTests(TestCase):
             course=self.course, student=self.student, present=False
         )
 
-        attendance.updateRegistrationEnabledStatus()
-
         self.registration.refresh_from_db()
         self.assertFalse(self.registration.enabled)
 

@@ -97,6 +97,7 @@ class DomainValidationTests(TestCase):
 
     def test_attendance_identity_is_course_student_and_date(self):
         first_date = date(2026, 7, 29)
+        Registration.objects.create(course=self.course, student=self.student)
         Attendance.objects.create(
             course=self.course, student=self.student, date=first_date, present=True
         )

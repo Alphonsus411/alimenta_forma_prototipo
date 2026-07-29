@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from rest_framework import serializers
 from .models import UserType, Profile, Offer, Announcement, Content, Course, Registration, Attendance, Mark
+from .services.attendance import AttendanceDomainError, validate_attendance_context
 
 class UserTypeSerializer (serializers.ModelSerializer):
   class Meta:
@@ -45,6 +46,15 @@ class RegistrationSerializer (serializers.ModelSerializer):
     read_only_fields = ('student',)
 
 class AttendanceSerializer (serializers.ModelSerializer):
+  def validate(self, attrs):
+    course = attrs.get('course', getattr(self.instance, 'course', None))
+    student = attrs.get('student', getattr(self.instance, 'student', None))
+    try:
+      validate_attendance_context(course.id, student.id)
+    except AttendanceDomainError as error:
+      raise serializers.ValidationError(str(error)) from error
+    return attrs
+
   class Meta:
     model = Attendance
     fields = '__all__'

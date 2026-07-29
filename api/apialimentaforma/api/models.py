@@ -169,7 +169,8 @@ class Attendance (models.Model):
   course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name= 'Curso')
   student = models.ForeignKey(User, on_delete=models.CASCADE, related_name= 'attendance', verbose_name= 'Alumno')
   date = models.DateField(default=timezone.localdate, verbose_name='Fecha')
-  present = models.BooleanField(default= False, blank=True, null=True, verbose_name= 'Presente')
+  # Una asistencia siempre representa uno de dos estados: presente o ausente.
+  present = models.BooleanField(default=False, verbose_name='Presente')
 
   def __str__(self):
     return f'Asistencia - {self.id}'
@@ -178,23 +179,6 @@ class Attendance (models.Model):
     super().clean()
     validate_user_role(self.student, 's', 'student')
 
-  def updateRegistrationEnabledStatus (self):
-    courseInstance = Course.objects.get(id=self.course.id)
-    totalClasses = courseInstance.classes
-    if totalClasses <= 0:
-      raise ValueError('El curso debe tener al menos una clase')
-    totalAbsences = Attendance.objects.filter(student=self.student, course=self.course, present=False).count()
-    absencesPercent = (totalAbsences / totalClasses) * 100
-    
-    registration = Registration.objects.get(course=self.course, student=self.student)
-    
-    if absencesPercent > 20:
-      registration.enabled = False
-    else:
-      registration.enabled = True
-    
-    registration.save()
-    
   class Meta:
     verbose_name = 'Asistencia'
     verbose_name_plural = 'Asistencias'
