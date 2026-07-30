@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import App from '../../src/App';
 import ErrorBoundary from '../../src/components/ErrorBoundary';
+import ProfileFooter from '../../src/components/ProfileFooter';
 
 const renderRoute = (route) => render(
   <MemoryRouter initialEntries={[route]}>
@@ -12,6 +13,27 @@ const renderRoute = (route) => render(
 );
 
 describe('rutas principales', () => {
+	it('ofrece en el perfil únicamente enlaces con destino real y nombre accesible', () => {
+		render(
+			<MemoryRouter>
+				<ProfileFooter />
+			</MemoryRouter>,
+		);
+
+		const navigation = screen.getByRole('navigation', { name: 'Navegación del perfil' });
+		const links = screen.getAllByRole('link');
+
+		expect(navigation).toContainElement(links[0]);
+		expect(links).toHaveLength(4);
+		expect(links.map((link) => [link.textContent, link.getAttribute('href')])).toEqual([
+			['Inicio', '/'],
+			['Identificarse', '/login'],
+			['Mi progreso', '/student'],
+			['Mi perfil', '/profile'],
+		]);
+		links.forEach((link) => expect(link).toHaveAccessibleName());
+	});
+
   it.each([
     ['/courses', 'Nuestros Cursos'],
     ['/membership', 'Nuestros Precios'],
