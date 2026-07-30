@@ -140,7 +140,14 @@ class DomainPermissionTests(APITestCase):
     )
     response = self.client.post(
       reverse('course-list'),
-      {'title': 'Propio', 'detail': 'Detalle', 'classes': 2, 'teacher': self.other_teacher.id},
+      {
+        'title': 'Propio', 'detail': 'Detalle', 'classes': 2,
+        'teacher': self.other_teacher.id, 'category': self.course.category_id,
+        'modality': 'presencial', 'duration_hours': '2.00',
+        'start_date': '2026-09-01', 'end_date': '2026-09-01',
+        'capacity': 10, 'location': 'Aula', 'price': '0.00',
+        'objectives': 'Aprender.', 'requirements': 'Sin requisitos',
+      },
     )
     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
     self.assertEqual(response.data['teacher'], self.teacher.id)

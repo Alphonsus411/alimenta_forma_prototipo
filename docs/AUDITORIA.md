@@ -53,6 +53,12 @@ interpretaciones subjetivas.
 - [ ] **AF-119 — Auditoría y notificaciones de dominio:** registrar actor, instante y cambios de publicación, matrícula, asistencia, evaluación, cierre y certificado, y notificar las decisiones relevantes. **Verificación:** cada operación genera una entrada inmutable consultable solo por administración y una notificación idempotente para la persona afectada; las pruebas comprueban valor anterior/nuevo, motivo obligatorio y ausencia de duplicados al reintentar.
 - [ ] **AF-120 — Recorrido web por rol:** construir las vistas de alumno, docente, empresa y administración necesarias para ejecutar el ciclo completo, con acciones limitadas por rol. **Verificación:** pruebas end-to-end recorren publicación, inscripción, contenidos, asistencia, evaluación, cierre y certificado; además, una prueba negativa por rol confirma que no aparecen acciones ni datos no autorizados.
 
+> **Avance 30/07/2026:** se definieron e implementaron los metadatos base de
+> AF-109, el catálogo de categorías, las lecciones ordenadas y los estados y
+> transiciones de AF-110, incluida la conservación explícita de datos legados.
+> Permanecen abiertos los filtros del catálogo, el flujo completo de revisión y
+> las verificaciones integrales indicadas en ambos criterios de aceptación.
+
 ### P2 — Producción y mantenimiento
 
 - [x] **AF-201:** mover secretos y configuración (`SECRET_KEY`, `DEBUG`, hosts, base de datos, CORS/CSRF y almacenamiento) a variables de entorno validadas; producción rechaza secretos ausentes, `DEBUG` y hosts vacíos, y activa su endurecimiento HTTPS.

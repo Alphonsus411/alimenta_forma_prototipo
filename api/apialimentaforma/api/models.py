@@ -142,19 +142,66 @@ class Content (models.Model):
 
 # CURSOS DISPONIBLES, LOS COLOCAN LOS PROFESORES ---------------------------------------------
 
-class Course (models.Model):
-  statusChoices = (
-    ('i', 'inscripción'),
-    ('d', 'desarrollo'),
-    ('f', 'finalizado'),
-  )
+class CourseCategory(models.Model):
+  name = models.CharField(max_length=100, unique=True, verbose_name='Nombre')
+  active = models.BooleanField(default=True, verbose_name='Activa')
 
-  title = models.CharField(max_length=150, verbose_name= 'Titulo')
-  detail = models.CharField(max_length=500, verbose_name = 'Detalle')
-  classes = models.IntegerField(validators=[MinValueValidator(1)], verbose_name= 'Clases')
-  teacher = models.ForeignKey(User, verbose_name= 'Profesor', on_delete=models.CASCADE)
-  status = models.CharField(max_length=1, choices= statusChoices, default= 'i', verbose_name= 'Estado')
-  content = models.ForeignKey(Content, on_delete=models.CASCADE, blank= True, null=True, verbose_name='Contenido')
+  def __str__(self):
+    return self.name
+
+  class Meta:
+    verbose_name = 'Categoría de curso'
+    verbose_name_plural = 'Categorías de curso'
+    ordering = ('name',)
+
+
+def get_default_course_category():
+  """Categoría segura para altas internas antiguas; la API exige una explícita."""
+  return CourseCategory.objects.get_or_create(name='Manipulación de alimentos')[0].pk
+
+
+class Course(models.Model):
+  class Modality(models.TextChoices):
+    IN_PERSON = 'presencial', 'Presencial'
+    ONLINE = 'online', 'Online'
+    BLENDED = 'mixta', 'Mixta'
+
+  class Status(models.TextChoices):
+    DRAFT = 'borrador', 'Borrador'
+    REVIEW = 'revision', 'En revisión'
+    PUBLISHED = 'publicado', 'Publicado'
+    ENROLLMENT_CLOSED = 'inscripcion_cerrada', 'Inscripción cerrada'
+    IN_PROGRESS = 'desarrollo', 'En desarrollo'
+    FINISHED = 'finalizado', 'Finalizado'
+    CLOSED = 'cerrado', 'Cerrado'
+    CANCELLED = 'cancelado', 'Cancelado'
+
+  ALLOWED_STATUS_TRANSITIONS = {
+    Status.DRAFT: {Status.REVIEW, Status.CANCELLED},
+    Status.REVIEW: {Status.PUBLISHED, Status.DRAFT, Status.CANCELLED},
+    Status.PUBLISHED: {Status.ENROLLMENT_CLOSED, Status.CANCELLED},
+    Status.ENROLLMENT_CLOSED: {Status.IN_PROGRESS, Status.CANCELLED},
+    Status.IN_PROGRESS: {Status.FINISHED, Status.CANCELLED},
+    Status.FINISHED: {Status.CLOSED},
+    Status.CLOSED: set(),
+    Status.CANCELLED: set(),
+  }
+
+  title = models.CharField(max_length=150, verbose_name='Título')
+  detail = models.CharField(max_length=500, verbose_name='Detalle')
+  classes = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Clases')
+  teacher = models.ForeignKey(User, verbose_name='Profesor', on_delete=models.CASCADE)
+  category = models.ForeignKey(CourseCategory, on_delete=models.PROTECT, related_name='courses', default=get_default_course_category, verbose_name='Categoría')
+  modality = models.CharField(max_length=12, choices=Modality.choices, default=Modality.IN_PERSON, verbose_name='Modalidad')
+  duration_hours = models.DecimalField(max_digits=6, decimal_places=2, default=1, validators=[MinValueValidator(Decimal('0.01'))], verbose_name='Duración (horas)')
+  start_date = models.DateField(default=timezone.localdate, verbose_name='Fecha de inicio')
+  end_date = models.DateField(default=timezone.localdate, verbose_name='Fecha de fin')
+  capacity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)], verbose_name='Aforo')
+  location = models.CharField(max_length=300, default='Pendiente de actualizar', verbose_name='Ubicación o acceso')
+  price = models.DecimalField(max_digits=8, decimal_places=2, default=0, validators=[MinValueValidator(Decimal('0'))], verbose_name='Precio')
+  objectives = models.TextField(default='Pendiente de actualizar', verbose_name='Objetivos')
+  requirements = models.TextField(default='Sin requisitos', verbose_name='Requisitos')
+  status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT, verbose_name='Estado de publicación')
 
   def __str__(self):
     return self.title
@@ -162,12 +209,43 @@ class Course (models.Model):
   def clean(self):
     super().clean()
     validate_user_role(self.teacher, TEACHER, 'teacher')
-  
+    errors = {}
+    if self.start_date and self.end_date and self.start_date > self.end_date:
+      errors['end_date'] = 'La fecha de fin no puede ser anterior a la fecha de inicio.'
+    if self.pk:
+      previous = Course.objects.filter(pk=self.pk).values_list('status', flat=True).first()
+      if previous and previous != self.status and self.status not in self.ALLOWED_STATUS_TRANSITIONS.get(previous, set()):
+        errors['status'] = f'No se permite pasar de {previous} a {self.status}.'
+    if errors:
+      raise ValidationError(errors)
+
   class Meta:
     verbose_name = 'Curso'
     verbose_name_plural = 'Cursos'
     constraints = [
       models.CheckConstraint(check=models.Q(classes__gt=0), name='course_classes_positive'),
+      models.CheckConstraint(check=models.Q(duration_hours__gt=0), name='course_duration_positive'),
+      models.CheckConstraint(check=models.Q(capacity__gt=0), name='course_capacity_positive'),
+      models.CheckConstraint(check=models.Q(price__gte=0), name='course_price_non_negative'),
+      models.CheckConstraint(check=models.Q(end_date__gte=models.F('start_date')), name='course_dates_ordered'),
+    ]
+
+
+class CourseLesson(models.Model):
+  course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons', verbose_name='Curso')
+  content = models.ForeignKey(Content, on_delete=models.PROTECT, related_name='course_lessons', verbose_name='Contenido')
+  order = models.PositiveIntegerField(validators=[MinValueValidator(1)], verbose_name='Orden')
+
+  def __str__(self):
+    return f'{self.course}: {self.order}. {self.content}'
+
+  class Meta:
+    verbose_name = 'Lección de curso'
+    verbose_name_plural = 'Lecciones de curso'
+    ordering = ('order', 'id')
+    constraints = [
+      models.UniqueConstraint(fields=('course', 'order'), name='unique_course_lesson_order'),
+      models.CheckConstraint(check=models.Q(order__gt=0), name='course_lesson_order_positive'),
     ]
 
 # REGISTRO DE USUARIOS ----------------------------------------

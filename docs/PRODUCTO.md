@@ -24,6 +24,27 @@ autorizados para impartir o administrar la formación.
 
 ## Catálogo formativo
 
+### Metadatos obligatorios de la ficha
+
+Toda edición de un curso de alimentación u hostelería debe registrar, antes de
+solicitar su revisión, los siguientes metadatos obligatorios:
+
+- **categoría** del catálogo administrable de áreas formativas;
+- **modalidad** presencial, online o mixta;
+- **duración** total expresada en horas (mayor que cero);
+- **fecha de inicio y fecha de fin**, siendo el inicio igual o anterior al fin;
+- **aforo** o número máximo de plazas, como entero mayor que cero;
+- **ubicación o acceso**, que identifica la sede, URL o instrucciones de acceso;
+- **precio** en euros, que puede ser cero pero nunca negativo;
+- **objetivos** formativos y **requisitos** previos (indicando expresamente
+  «Sin requisitos» cuando no existan); y
+- **estado de publicación**, sujeto al flujo y las transiciones descritas en
+  la sección «Estados».
+
+Los módulos o lecciones son una colección ordenada propia de cada curso. Cada
+posición es única dentro del curso y referencia sus materiales de contenido;
+el contenido legado se conserva como la primera lección al migrar los datos.
+
 Todo curso debe pertenecer al menos a una de estas áreas:
 
 - **Manipulación de alimentos:** higiene personal, conservación, limpieza y
