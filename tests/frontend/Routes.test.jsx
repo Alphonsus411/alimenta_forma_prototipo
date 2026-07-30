@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import App from '../../src/App';
+import ErrorBoundary from '../../src/components/ErrorBoundary';
 
 const renderRoute = (route) => render(
   <MemoryRouter initialEntries={[route]}>
@@ -61,5 +62,41 @@ describe('rutas principales', () => {
     expect(screen.getByLabelText('Nombre de usuario *')).toHaveAttribute('name', 'username');
     expect(screen.getByLabelText('Contraseña *')).toHaveAttribute('type', 'password');
     expect(screen.getByRole('button', { name: 'Iniciar sesión' })).toBeEnabled();
+  });
+
+  it('muestra una página comprensible para una ruta desconocida y permite volver al inicio', async () => {
+    const user = userEvent.setup();
+    renderRoute('/ruta-que-no-existe');
+
+    expect(screen.getByRole('heading', { name: 'Página no encontrada' })).toBeInTheDocument();
+    expect(screen.getByText(/dirección que has solicitado no existe/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('link', { name: 'Volver al inicio' }));
+
+    expect(screen.queryByRole('heading', { name: 'Página no encontrada' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
+  });
+
+  it('permite recuperar el contenido tras un fallo inesperado de renderizado', async () => {
+    const user = userEvent.setup();
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    let shouldFail = true;
+    const UnstableContent = () => {
+      if (shouldFail) {
+        throw new Error('Fallo de renderizado simulado');
+      }
+      return <p>Contenido recuperado</p>;
+    };
+
+    render(
+      <ErrorBoundary onReset={() => { shouldFail = false; }}>
+        <UnstableContent />
+      </ErrorBoundary>,
+    );
+
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Intentar de nuevo' }));
+    expect(screen.getByText('Contenido recuperado')).toBeInTheDocument();
+    consoleError.mockRestore();
   });
 });

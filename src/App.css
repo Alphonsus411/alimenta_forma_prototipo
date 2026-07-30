@@ -1,0 +1,12 @@
+.routeFeedback {
+	max-width: 48rem;
+	margin: 4rem auto;
+	padding: 0 1.5rem;
+	text-align: center;
+}
+
+.routeFeedback a,
+.routeFeedback button {
+	display: inline-block;
+	margin-top: 1rem;
+}
