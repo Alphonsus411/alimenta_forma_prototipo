@@ -60,6 +60,30 @@ describe("recorridos del alumno", () => {
     expect(screen.queryByRole("button", { name: "Confirmar matrícula" })).not.toBeInTheDocument();
   });
 
+  it.each([
+    ["p", "profesor"],
+    ["c", "empresa"],
+    ["a", "administración"],
+  ])("oculta la matrícula individual al rol %s (%s)", async (category) => {
+    fetch.mockReturnValueOnce(response({ ...user, category })).mockReturnValueOnce(response(course));
+    renderRoute("/courses/3/registration");
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("únicamente para el rol alumno");
+    expect(screen.queryByRole("button", { name: "Confirmar matrícula" })).not.toBeInTheDocument();
+  });
+
+  it("explica un error HTTP al intentar confirmar la matrícula", async () => {
+    fetch.mockReturnValueOnce(response(user)).mockReturnValueOnce(response(course)).mockReturnValueOnce(
+      response({ detail: "El servicio de matrículas no está disponible." }, { ok: false, status: 503 }),
+    );
+    const interaction = userEvent.setup();
+    renderRoute("/courses/3/registration");
+
+    await interaction.click(await screen.findByRole("button", { name: "Confirmar matrícula" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("El servicio de matrículas no está disponible");
+  });
+
   it("consulta y resume el progreso académico del alumno", async () => {
     fetch.mockImplementation((url) => {
       const payloads = {

@@ -2,8 +2,8 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
+import App from "../../src/App";
 import Courses from "../../src/routes/Courses";
-import Profile from "../../src/routes/Profile";
 
 const response = (data, { ok = true, status = 200 } = {}) => Promise.resolve({
   ok,
@@ -95,7 +95,7 @@ describe("rutas conectadas con la API", () => {
       }));
     const user = userEvent.setup();
 
-    renderRoute(<Profile />);
+    render(<MemoryRouter initialEntries={["/profile"]}><App /></MemoryRouter>);
 
     expect(await screen.findByRole("heading", { name: "Ana López" })).toBeInTheDocument();
     const location = screen.getByLabelText("Ciudad");
@@ -109,5 +109,25 @@ describe("rutas conectadas con la API", () => {
       body: expect.stringContaining('"location":"Córdoba"'),
     }));
     await waitFor(() => expect(screen.getByLabelText("Ciudad")).toHaveValue("Córdoba"));
+  });
+
+  it("cierra la sesión desde el perfil y devuelve al formulario de acceso", async () => {
+    fetch.mockImplementation((url, options = {}) => {
+      if (url === "/api/v1/auth/me/") return response({
+        id: 4, username: "ana", email: "ana@example.com", first_name: "Ana", last_name: "López", category: "s",
+      });
+      if (url === "/api/v1/profile/") return response([{
+        id: 9, location: "Rosario", phone: "111", description: "Estudiante", userType: 1, user: 4,
+      }]);
+      if (url === "/api/v1/auth/logout/" && options.method === "POST") return response(null, { status: 204 });
+      throw new Error(`Petición inesperada: ${url}`);
+    });
+    const user = userEvent.setup();
+
+    render(<MemoryRouter initialEntries={["/profile"]}><App /></MemoryRouter>);
+    await user.click(await screen.findByRole("button", { name: "Cerrar sesión" }));
+
+    expect(await screen.findByRole("heading", { name: "Inicio de Sesión" })).toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledWith("/api/v1/auth/logout/", expect.objectContaining({ method: "POST" }));
   });
 });
