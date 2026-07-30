@@ -33,11 +33,18 @@
 }
 
 .hamburger {
-  display: none;
-  color: var(--clr-lighterGreen);
+	display: none;
+	padding: 0;
+	color: var(--clr-lighterGreen);
 	border: 0;
 	background: transparent;
+	font: inherit;
 	cursor: pointer;
+}
+
+.hamburger:focus-visible {
+	outline: 3px solid var(--clr-bluer);
+	outline-offset: 4px;
 }
 
 .menu {
@@ -54,6 +61,7 @@
 		flex-direction: column;
 		position:absolute;
 		right: -300px;
+		visibility: hidden;
 	}
 
 	.menuActive {
@@ -68,6 +76,7 @@
 		font-weight: var(--fw-bold);
 		font-size: 14px;
 		justify-content: space-evenly;
+		visibility: visible;
 	}
 
 	.menuActive a {
