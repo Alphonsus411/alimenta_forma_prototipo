@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from .roles import PUBLIC_REGISTRATION_ROLES
 from .permissions import is_admin
-from .models import UserType, Profile, Offer, Announcement, Content, Course, CourseLesson, Registration, Attendance, Mark
+from .models import Certificate, UserType, Profile, Offer, Announcement, Content, Course, CourseLesson, Registration, Attendance, Mark
 from .services.attendance import AttendanceDomainError, validate_attendance_context
 
 class UserTypeSerializer (serializers.ModelSerializer):
@@ -137,6 +137,20 @@ class MarkSerializer (serializers.ModelSerializer):
   class Meta:
     model = Mark
     fields = '__all__'
+
+
+class CertificateSerializer(serializers.ModelSerializer):
+  status = serializers.SerializerMethodField()
+  outcome = serializers.CharField(source='completion.outcome', read_only=True)
+
+  def get_status(self, obj):
+    return 'vigente' if obj.is_valid else 'revocado'
+
+  class Meta:
+    model = Certificate
+    fields = (
+      'public_id', 'issued_at', 'holder_name', 'course_title', 'status', 'outcome',
+    )
 
 
 class UserSerializer(serializers.ModelSerializer):

@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .models import UserType, Profile, Offer, Announcement, Course, CourseCategory, CourseLesson, Content, Registration, Attendance, Mark
+from .models import (
+  Announcement, Attendance, Certificate, CompletionEvaluation, Content, Course,
+  CourseApprovalRule, CourseCategory, CourseCompletion, CourseLesson,
+  LessonCompletion, Mark, Offer, Profile, Registration, UserType,
+)
 
 # Register your models here.
 
@@ -57,3 +61,8 @@ class MarkAdmin(admin.ModelAdmin):
 admin.site.register(Mark, MarkAdmin)
 admin.site.register(CourseCategory)
 admin.site.register(CourseLesson)
+admin.site.register(CourseApprovalRule)
+admin.site.register(LessonCompletion)
+admin.site.register(CourseCompletion)
+admin.site.register(CompletionEvaluation)
+admin.site.register(Certificate)
