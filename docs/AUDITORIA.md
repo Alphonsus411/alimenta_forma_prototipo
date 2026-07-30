@@ -78,7 +78,7 @@ interpretaciones subjetivas.
 - [ ] **AF-205C — SEO básico:** definir metadatos generales y específicos por página, URL canónica y datos sociales, y comprobar el resultado generado.
 - [ ] **AF-205D — Auditoría responsive y accesible:** revisar con criterios y anchos reproducibles la navegación, formularios, contraste, foco, landmarks y ausencia de desbordamiento; documentar y corregir los hallazgos.
 - [ ] **AF-206:** revisar dependencias (incluido el paquete redundante `django-rest-framework`) y fijar una política de actualizaciones.
-- [ ] **AF-207:** elegir OpenAPI (por ejemplo, una integración mantenida) y restaurar una ruta de documentación de la API; la antigua vista CoreAPI fue retirada por estar obsoleta e incompleta.
+- [x] **AF-207:** integrar drf-spectacular, compatible con las versiones fijadas de Django y DRF, y publicar el esquema OpenAPI y Swagger UI en rutas estables. El contrato documenta sesión, CSRF, parámetros, archivos, validación y permisos; se cerró después de que la prueba validase el esquema y confirmase los endpoints principales.
 
 ## Criterio de acabado
 

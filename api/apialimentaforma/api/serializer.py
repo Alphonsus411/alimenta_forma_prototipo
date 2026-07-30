@@ -143,7 +143,7 @@ class CertificateSerializer(serializers.ModelSerializer):
   status = serializers.SerializerMethodField()
   outcome = serializers.CharField(source='completion.outcome', read_only=True)
 
-  def get_status(self, obj):
+  def get_status(self, obj) -> str:
     return 'vigente' if obj.is_valid else 'revocado'
 
   class Meta:
