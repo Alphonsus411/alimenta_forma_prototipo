@@ -1,13 +1,17 @@
+import json
+
 from django.contrib.auth import authenticate, login, logout
+from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Announcement, Attendance, Content, Course, Mark, Offer, Profile, Registration, UserType
+from .models import Announcement, Attendance, Certificate, Content, Course, Mark, Offer, Profile, Registration, UserType
 from .permissions import (
   IsAuthenticatedProfileOwnerOrAdmin,
   IsCompanyAnnouncementOwnerOrAdmin,
@@ -29,6 +33,7 @@ from .serializer import (
   UserTypeSerializer,
   RegisterSerializer,
   UserSerializer,
+  CertificateSerializer,
 )
 
 
@@ -193,3 +198,48 @@ class AttendanceViewSet(CourseRecordViewSet):
 class MarkViewSet(CourseRecordViewSet):
   queryset = Mark.objects.select_related('course')
   serializer_class = MarkSerializer
+
+
+class CertificateViewSet(viewsets.ReadOnlyModelViewSet):
+  serializer_class = CertificateSerializer
+  permission_classes = (IsAuthenticated,)
+  lookup_field = 'public_id'
+
+  def get_queryset(self):
+    queryset = Certificate.objects.select_related(
+      'completion__registration__student', 'completion__course'
+    )
+    if is_admin(self.request.user):
+      return queryset
+    return queryset.filter(completion__registration__student=self.request.user)
+
+  @action(detail=True, methods=('get',))
+  def download(self, request, public_id=None):
+    certificate = self.get_object()
+    payload = CertificateSerializer(certificate).data
+    response = HttpResponse(
+      json.dumps(payload, ensure_ascii=False, default=str, indent=2),
+      content_type='application/json; charset=utf-8',
+    )
+    response['Content-Disposition'] = (
+      f'attachment; filename="certificado-{certificate.public_id}.json"'
+    )
+    return response
+
+
+class PublicCertificateVerificationView(APIView):
+  permission_classes = (AllowAny,)
+  authentication_classes = ()
+
+  def get(self, request, public_id):
+    certificate = Certificate.objects.select_related('completion').filter(
+      public_id=public_id
+    ).first()
+    if certificate is None:
+      return Response({'status': 'inexistente'}, status=status.HTTP_404_NOT_FOUND)
+    return Response({
+      'public_id': str(certificate.public_id),
+      'status': 'vigente' if certificate.is_valid else 'revocado',
+      'course_title': certificate.course_title,
+      'issued_at': certificate.issued_at,
+    })

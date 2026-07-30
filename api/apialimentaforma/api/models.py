@@ -1,4 +1,5 @@
 from decimal import Decimal
+import uuid
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -346,3 +347,142 @@ class Mark (models.Model):
         name='mark_3_between_0_and_10',
       ),
     ]
+
+
+class CourseApprovalRule(models.Model):
+  """Criterios de aprobación publicados para una edición concreta."""
+
+  course = models.OneToOneField(
+    Course, on_delete=models.CASCADE, related_name='approval_rule', verbose_name='Curso'
+  )
+  minimum_attendance_percentage = models.DecimalField(
+    max_digits=5, decimal_places=2, null=True, blank=True,
+    validators=[MinValueValidator(Decimal('0')), MaxValueValidator(Decimal('100'))],
+    verbose_name='Asistencia mínima (%)',
+  )
+  minimum_grade = models.DecimalField(
+    max_digits=3, decimal_places=1, null=True, blank=True,
+    validators=[MinValueValidator(Decimal('0')), MaxValueValidator(Decimal('10'))],
+    verbose_name='Calificación mínima',
+  )
+  require_content_completion = models.BooleanField(
+    default=False, verbose_name='Exigir todos los contenidos'
+  )
+  updated_at = models.DateTimeField(auto_now=True)
+
+  class Meta:
+    verbose_name = 'Regla de aprobación'
+    verbose_name_plural = 'Reglas de aprobación'
+    constraints = [
+      models.CheckConstraint(
+        check=models.Q(minimum_attendance_percentage__isnull=True) | models.Q(
+          minimum_attendance_percentage__range=(0, 100)
+        ), name='approval_attendance_between_0_and_100'
+      ),
+      models.CheckConstraint(
+        check=models.Q(minimum_grade__isnull=True) | models.Q(minimum_grade__range=(0, 10)),
+        name='approval_grade_between_0_and_10'
+      ),
+    ]
+
+
+class LessonCompletion(models.Model):
+  """Evidencia de que una matrícula terminó un contenido del curso."""
+
+  registration = models.ForeignKey(
+    Registration, on_delete=models.CASCADE, related_name='completed_lessons',
+    verbose_name='Matrícula'
+  )
+  lesson = models.ForeignKey(
+    CourseLesson, on_delete=models.CASCADE, related_name='registration_completions',
+    verbose_name='Lección'
+  )
+  completed_at = models.DateTimeField(default=timezone.now, verbose_name='Finalizado el')
+
+  class Meta:
+    verbose_name = 'Contenido finalizado'
+    verbose_name_plural = 'Contenidos finalizados'
+    constraints = [
+      models.UniqueConstraint(
+        fields=('registration', 'lesson'), name='unique_registration_lesson_completion'
+      ),
+    ]
+
+
+class CourseCompletion(models.Model):
+  class Outcome(models.TextChoices):
+    PASSED = 'aprobado', 'Aprobado'
+    FAILED = 'suspenso', 'Suspenso'
+
+  registration = models.OneToOneField(
+    Registration, on_delete=models.CASCADE, related_name='completion', verbose_name='Matrícula'
+  )
+  course = models.ForeignKey(
+    Course, on_delete=models.PROTECT, related_name='completions', verbose_name='Curso'
+  )
+  outcome = models.CharField(max_length=10, choices=Outcome.choices, verbose_name='Resultado')
+  failure_reasons = models.JSONField(default=list, blank=True, verbose_name='Motivos')
+  attendance_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+  final_grade = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
+  content_completion_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+  rule_snapshot = models.JSONField(verbose_name='Regla aplicada')
+  evidence_snapshot = models.JSONField(verbose_name='Evidencias aplicadas')
+  input_fingerprint = models.CharField(max_length=64, verbose_name='Huella de entradas')
+  revision = models.PositiveIntegerField(default=1)
+  evaluated_at = models.DateTimeField(default=timezone.now)
+
+  class Meta:
+    verbose_name = 'Finalización de curso'
+    verbose_name_plural = 'Finalizaciones de curso'
+    constraints = [
+      models.UniqueConstraint(
+        fields=('registration', 'course'), name='unique_completion_registration_course'
+      ),
+    ]
+
+
+class CompletionEvaluation(models.Model):
+  """Copia inmutable de cada resultado distinto calculado por el servicio."""
+
+  completion = models.ForeignKey(
+    CourseCompletion, on_delete=models.CASCADE, related_name='evaluations'
+  )
+  revision = models.PositiveIntegerField()
+  outcome = models.CharField(max_length=10, choices=CourseCompletion.Outcome.choices)
+  failure_reasons = models.JSONField(default=list, blank=True)
+  rule_snapshot = models.JSONField()
+  evidence_snapshot = models.JSONField()
+  input_fingerprint = models.CharField(max_length=64)
+  evaluated_at = models.DateTimeField(default=timezone.now)
+
+  class Meta:
+    ordering = ('revision',)
+    constraints = [
+      models.UniqueConstraint(
+        fields=('completion', 'revision'), name='unique_completion_evaluation_revision'
+      ),
+      models.UniqueConstraint(
+        fields=('completion', 'input_fingerprint'), name='unique_completion_evaluation_input'
+      ),
+    ]
+
+
+class Certificate(models.Model):
+  completion = models.OneToOneField(
+    CourseCompletion, on_delete=models.PROTECT, related_name='certificate',
+    verbose_name='Finalización'
+  )
+  public_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+  issued_at = models.DateTimeField(default=timezone.now)
+  holder_name = models.CharField(max_length=300, verbose_name='Nombre en el certificado')
+  course_title = models.CharField(max_length=150, verbose_name='Curso en el certificado')
+  revoked_at = models.DateTimeField(null=True, blank=True)
+  revocation_reason = models.CharField(max_length=500, blank=True, default='')
+
+  @property
+  def is_valid(self):
+    return self.revoked_at is None
+
+  class Meta:
+    verbose_name = 'Certificado'
+    verbose_name_plural = 'Certificados'

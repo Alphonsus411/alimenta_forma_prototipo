@@ -59,6 +59,14 @@ interpretaciones subjetivas.
 > Permanecen abiertos los filtros del catálogo, el flujo completo de revisión y
 > las verificaciones integrales indicadas en ambos criterios de aceptación.
 
+> **Avance de AF-116 y AF-117 (30/07/2026):** se incorporaron reglas de
+> aprobación configurables por curso, cálculo idempotente de finalización con
+> revisiones históricas, emisión única al aprobar un curso cerrado y consulta,
+> descarga y verificación pública mínima de certificados. Permanecen abiertas
+> ambas tareas porque el cierre transaccional del curso, la matrícula confirmada
+> de AF-111 y el flujo administrativo de revocación motivada aún no están
+> implementados de extremo a extremo.
+
 ### P2 — Producción y mantenimiento
 
 - [x] **AF-201:** mover secretos y configuración (`SECRET_KEY`, `DEBUG`, hosts, base de datos, CORS/CSRF y almacenamiento) a variables de entorno validadas; producción rechaza secretos ausentes, `DEBUG` y hosts vacíos, y activa su endurecimiento HTTPS.
