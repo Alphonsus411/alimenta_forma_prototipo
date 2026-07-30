@@ -91,3 +91,9 @@ El prototipo no se considerará terminado hasta que los flujos de usuario P1 fun
 > estado y relación accesibles. El menú cerrado deja de incluir enlaces fuera de
 > pantalla en el orden de tabulación y el botón dispone de foco visible. La
 > auditoría integral de las demás vistas y anchos continúa pendiente.
+
+> **Avance de AF-205D (30/07/2026):** la navegación secundaria del perfil se
+> limita a destinos implementados (inicio, identificación, progreso y perfil),
+> usa un landmark con nombre y aporta un nombre accesible a cada icono. Se
+> retiraron búsqueda, listas y favoritos porque el prototipo no implementa aún
+> esas funciones, y una prueba impide reintroducir enlaces sin destino o nombre.
