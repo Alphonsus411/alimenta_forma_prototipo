@@ -48,3 +48,19 @@ class RegistrationAPITests(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_teacher_reads_only_registrations_from_own_courses(self):
+        other_teacher = User.objects.create_user(username='other_teacher')
+        other_teacher.profile.userType = self.teacher.profile.userType
+        other_teacher.profile.save(update_fields=('userType',))
+        other_course = Course.objects.create(
+            title='Curso ajeno', detail='Curso', classes=2, teacher=other_teacher
+        )
+        Registration.objects.create(course=other_course, student=self.student)
+        self.client.force_authenticate(self.teacher)
+
+        response = self.client.get(reverse('registration-list'))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual([item['id'] for item in response.data], [self.other_registration.id])
+        self.assertEqual(response.data[0]['student_username'], self.other_student.username)

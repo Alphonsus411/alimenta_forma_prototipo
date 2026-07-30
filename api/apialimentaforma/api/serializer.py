@@ -42,6 +42,7 @@ class CourseSerializer (serializers.ModelSerializer):
     read_only_fields = ('teacher',)
 
 class RegistrationSerializer (serializers.ModelSerializer):
+  student_username = serializers.CharField(source='student.username', read_only=True)
   def validate(self, attrs):
     request = self.context.get('request')
     student = request.user if request and request.user.is_authenticated else None
@@ -63,6 +64,7 @@ class RegistrationSerializer (serializers.ModelSerializer):
     read_only_fields = ('student',)
 
 class AttendanceSerializer (serializers.ModelSerializer):
+  student_username = serializers.CharField(source='student.username', read_only=True)
   def validate(self, attrs):
     course = attrs.get('course', getattr(self.instance, 'course', None))
     student = attrs.get('student', getattr(self.instance, 'student', None))
@@ -79,6 +81,15 @@ class AttendanceSerializer (serializers.ModelSerializer):
 class MarkSerializer (serializers.ModelSerializer):
   # El rol se modela mediante Profile/UserType, no mediante grupos de Django.
   student = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+  def validate(self, attrs):
+    course = attrs.get('course', getattr(self.instance, 'course', None))
+    student = attrs.get('student', getattr(self.instance, 'student', None))
+    if course and student and not Registration.objects.filter(course=course, student=student).exists():
+      raise serializers.ValidationError({
+        'student': 'No existe una matrícula del alumno para este curso.'
+      })
+    return attrs
 
   class Meta:
     model = Mark

@@ -70,7 +70,10 @@ class IsRegistrationOwnerOrAdmin(BasePermission):
     return True
 
   def has_object_permission(self, request, view, obj):
-    return is_admin(request.user) or obj.student_id == request.user.id
+    return is_admin(request.user) or obj.student_id == request.user.id or (
+      request.method in SAFE_METHODS and has_role(request.user, TEACHER)
+      and obj.course.teacher_id == request.user.id
+    )
 
 
 class IsTeacherOfCourseOrStudentOrAdmin(BasePermission):

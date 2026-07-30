@@ -1,0 +1,14 @@
+.main { width: min(1180px, 94%); margin: 2rem auto 4rem; }
+.panel { display: grid; gap: 1.5rem; }
+.panel form, .panel section { padding: 1.25rem; border: 1px solid var(--clr-lighterGreen); border-radius: 10px; background: #f7fffd; }
+.panel form { display: grid; gap: .6rem; }
+.panel input, .panel select, .panel textarea { box-sizing: border-box; width: 100%; padding: .6rem; font: inherit; }
+.panel textarea { min-height: 5rem; }
+.panel button { margin: .2rem; padding: .55rem .8rem; border: 0; border-radius: 6px; background: var(--clr-greener); color: white; cursor: pointer; }
+.panel button:disabled { opacity: .6; cursor: wait; }
+.panel table { width: 100%; border-collapse: collapse; }
+.panel th, .panel td { padding: .65rem; border-bottom: 1px solid #bad8cf; text-align: left; }
+.management { display: grid; gap: 1rem; overflow-x: auto; }
+.error { padding: 1rem; background: #fff0f0; color: #8a1010; }
+.notice { padding: 1rem; background: #ecfff4; color: #145c32; }
+@media (max-width: 700px) { .panel table { min-width: 620px; } .panel section { overflow-x: auto; } }
