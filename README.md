@@ -16,7 +16,7 @@ Las versiones que fija actualmente el repositorio son:
 - **Frontend:** Node.js 20 (versión usada por CI), React 18.2, React Router 6.23,
   Vite 5.2, Vitest 2.1 y ESLint 8.57.
 - **Backend:** Python 3.12 (versión usada por CI), Django 5.0.6, DRF 3.15.2,
-  django-cors-headers 4.4.0 y Pillow 10.3.0.
+  drf-spectacular 0.30.0, django-cors-headers 4.4.0 y Pillow 10.3.0.
 - **Desarrollo:** npm con instalación reproducible desde `package-lock.json` y
   SQLite por defecto. Las dependencias Python están fijadas en
   `api/apialimentaforma/requirements.txt`.
@@ -133,6 +133,19 @@ de HTTPS; `runserver` y el servidor de Vite no son servidores de producción.
 
 ## API y autenticación
 
+El contrato OpenAPI mantenido por **drf-spectacular** y su interfaz Swagger UI
+se publican en rutas estables, independientes del versionado de los recursos:
+
+- Esquema OpenAPI 3: `http://127.0.0.1:8000/api/schema/` (YAML por defecto y
+  JSON al solicitar `Accept: application/json`).
+- Documentación interactiva: `http://127.0.0.1:8000/api/docs/`.
+
+El esquema detalla los parámetros de ruta y cuerpos, los campos de archivo
+`multipart/form-data`, las respuestas de validación y los permisos de lectura y
+escritura. Swagger representa la sesión mediante `cookieAuth`; para probar una
+operación mutable hay que iniciar sesión en el mismo navegador y enviar además
+la cabecera `X-CSRFToken`, cuyo valor corresponde a la cookie `csrftoken`.
+
 Todas las rutas parten de `/api/v1/` y terminan en `/`. La autenticación usa la
 **sesión de Django**: al iniciar sesión el backend entrega una cookie de sesión,
 que el navegador debe enviar con `credentials: "include"`. Las operaciones no
@@ -159,8 +172,7 @@ y devuelve el usuario si ya existe una sesión.
 Las rutas de recursos son `ModelViewSet`: la colección admite las operaciones
 permitidas en `/<recurso>/` y el detalle en `/<recurso>/<id>/`. Los filtros de
 consulta impiden que alumnos, profesores y empresas obtengan objetos privados
-ajenos aunque conozcan su identificador. Actualmente no hay una ruta OpenAPI ni
-una interfaz navegable de documentación; su incorporación se sigue en AF-207.
+ajenos aunque conozcan su identificador.
 
 ## Calidad y pruebas
 

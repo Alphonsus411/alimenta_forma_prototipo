@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_spectacular',
     'corsheaders',
     'api',
 ]
@@ -163,6 +164,26 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# OpenAPI se genera con drf-spectacular, que mantiene compatibilidad activa con
+# las versiones fijadas de Django y DRF. La descripción aclara el requisito CSRF
+# que OpenAPI no puede expresar por sí solo para la autenticación de sesión.
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Alimenta Forma API',
+    'DESCRIPTION': (
+        'API REST de Alimenta Forma. La autenticación usa la cookie sessionid de '
+        'Django. Las operaciones autenticadas POST, PUT, PATCH y DELETE también '
+        'requieren la cookie csrftoken y la cabecera X-CSRFToken con el mismo valor. '
+        'Las respuestas 400 contienen errores de validación por campo; 401 indica '
+        'que no existe una sesión válida y 403 que la sesión no tiene el permiso '
+        'requerido o que la comprobación CSRF ha fallado.'
+    ),
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': r'/api/v1',
 }
 
 # Manejo de Imagenes

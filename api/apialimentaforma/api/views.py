@@ -4,6 +4,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
+from drf_spectacular.utils import (
+  OpenApiParameter,
+  OpenApiResponse,
+  extend_schema,
+  extend_schema_view,
+  inline_serializer,
+)
+from rest_framework import serializers
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -21,6 +29,43 @@ from .permissions import (
   ReadOnlyOrAdmin,
   is_admin,
 )
+
+VALIDATION_ERROR = OpenApiResponse(
+  description='Datos no válidos. El objeto contiene una lista de mensajes por campo.'
+)
+UNAUTHENTICATED = OpenApiResponse(description='No existe una sesión de Django válida.')
+FORBIDDEN = OpenApiResponse(
+  description='La sesión no tiene permiso o la validación CSRF ha fallado.'
+)
+
+
+def documented_viewset(resource, read_access, write_access):
+  """Aplica descripciones uniformes de permisos, validación y CSRF al CRUD."""
+  read_description = f'{resource}. Permiso de lectura: {read_access}'
+  write_description = (
+    f'{resource}. Permiso de escritura: {write_access} '
+    'Requiere sesión y, en peticiones del navegador, cabecera X-CSRFToken.'
+  )
+  return extend_schema_view(
+    list=extend_schema(description=read_description),
+    retrieve=extend_schema(description=read_description),
+    create=extend_schema(
+      description=write_description,
+      responses={201: None, 400: VALIDATION_ERROR, 401: UNAUTHENTICATED, 403: FORBIDDEN},
+    ),
+    update=extend_schema(
+      description=write_description,
+      responses={200: None, 400: VALIDATION_ERROR, 401: UNAUTHENTICATED, 403: FORBIDDEN},
+    ),
+    partial_update=extend_schema(
+      description=write_description,
+      responses={200: None, 400: VALIDATION_ERROR, 401: UNAUTHENTICATED, 403: FORBIDDEN},
+    ),
+    destroy=extend_schema(
+      description=write_description,
+      responses={204: None, 401: UNAUTHENTICATED, 403: FORBIDDEN},
+    ),
+  )
 from .serializer import (
   AnnouncementSerializer,
   AttendanceSerializer,
@@ -41,6 +86,12 @@ class RegisterView(APIView):
   permission_classes = (AllowAny,)
   authentication_classes = ()
 
+  @extend_schema(
+    request=RegisterSerializer,
+    responses={201: UserSerializer, 400: VALIDATION_ERROR},
+    description='Registro público. Valida los parámetros, incluida la confirmación de contraseña.',
+    auth=[],
+  )
   def post(self, request):
     serializer = RegisterSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -52,6 +103,18 @@ class LoginView(APIView):
   permission_classes = (AllowAny,)
   authentication_classes = ()
 
+  @extend_schema(
+    request=inline_serializer(
+      name='LoginRequest',
+      fields={
+        'username': serializers.CharField(),
+        'password': serializers.CharField(write_only=True),
+      },
+    ),
+    responses={200: UserSerializer, 400: VALIDATION_ERROR},
+    description='Autentica credenciales y crea una sesión de Django en la cookie sessionid.',
+    auth=[],
+  )
   def post(self, request):
     username = request.data.get('username', '')
     password = request.data.get('password', '')
@@ -73,6 +136,11 @@ class LoginView(APIView):
 class LogoutView(APIView):
   permission_classes = (IsAuthenticated,)
 
+  @extend_schema(
+    request=None,
+    responses={204: None, 401: UNAUTHENTICATED, 403: FORBIDDEN},
+    description='Cierra la sesión. Requiere sesión y cabecera X-CSRFToken.',
+  )
   def post(self, request):
     logout(request)
     return Response(status=status.HTTP_204_NO_CONTENT)
@@ -82,16 +150,22 @@ class LogoutView(APIView):
 class CurrentUserView(APIView):
   permission_classes = (IsAuthenticated,)
 
+  @extend_schema(
+    responses={200: UserSerializer, 401: UNAUTHENTICATED},
+    description='Devuelve el usuario de la sesión y establece la cookie csrftoken.',
+  )
   def get(self, request):
     return Response(UserSerializer(request.user).data)
 
 
+@documented_viewset('Tipos de usuario', 'pública.', 'solo administración.')
 class UserTypeViewSet(viewsets.ModelViewSet):
   queryset = UserType.objects.all()
   serializer_class = UserTypeSerializer
   permission_classes = (ReadOnlyOrAdmin,)
 
 
+@documented_viewset('Perfiles', 'propietario o administración.', 'propietario o administración.')
 class ProfileViewSet(viewsets.ModelViewSet):
   queryset = Profile.objects.all()
   serializer_class = ProfileSerializer
@@ -106,12 +180,14 @@ class ProfileViewSet(viewsets.ModelViewSet):
     serializer.save(user=self.request.user)
 
 
+@documented_viewset('Ofertas', 'pública.', 'solo administración.')
 class OfferViewSet(viewsets.ModelViewSet):
   queryset = Offer.objects.all()
   serializer_class = OfferSerializer
   permission_classes = (ReadOnlyOrAdmin,)
 
 
+@documented_viewset('Anuncios', 'pública.', 'empresa propietaria o administración.')
 class AnnouncementViewSet(viewsets.ModelViewSet):
   queryset = Announcement.objects.all()
   serializer_class = AnnouncementSerializer
@@ -127,12 +203,18 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     serializer.save(owner=self.request.user)
 
 
+@documented_viewset(
+  'Contenidos y archivos',
+  'pública; los campos de archivo se devuelven como URL.',
+  'solo administración; los archivos se envían como multipart/form-data.',
+)
 class ContentViewSet(viewsets.ModelViewSet):
   queryset = Content.objects.all()
   serializer_class = ContentSerializer
   permission_classes = (ReadOnlyOrAdmin,)
 
 
+@documented_viewset('Cursos', 'pública.', 'profesor propietario o administración.')
 class CourseViewSet(viewsets.ModelViewSet):
   queryset = Course.objects.all()
   serializer_class = CourseSerializer
@@ -148,6 +230,11 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer.save(teacher=self.request.user)
 
 
+@documented_viewset(
+  'Matrículas',
+  'alumno propietario, profesor del curso o administración.',
+  'alumno propietario o administración.',
+)
 class RegistrationViewSet(viewsets.ModelViewSet):
   queryset = Registration.objects.all()
   serializer_class = RegistrationSerializer
@@ -190,16 +277,38 @@ class CourseRecordViewSet(viewsets.ModelViewSet):
     serializer.save()
 
 
+@documented_viewset(
+  'Asistencias',
+  'alumno implicado, profesor del curso o administración.',
+  'profesor del curso o administración.',
+)
 class AttendanceViewSet(CourseRecordViewSet):
   queryset = Attendance.objects.select_related('course')
   serializer_class = AttendanceSerializer
 
 
+@documented_viewset(
+  'Notas',
+  'alumno implicado, profesor del curso o administración.',
+  'profesor del curso o administración.',
+)
 class MarkViewSet(CourseRecordViewSet):
   queryset = Mark.objects.select_related('course')
   serializer_class = MarkSerializer
 
 
+@extend_schema_view(
+  list=extend_schema(description='Lista los certificados del alumno de la sesión o todos para administración.'),
+  retrieve=extend_schema(
+    description='Consulta un certificado propio por su parámetro public_id UUID.',
+    parameters=[OpenApiParameter('public_id', type={'type': 'string', 'format': 'uuid'}, location='path')],
+  ),
+  download=extend_schema(
+    description='Descarga como archivo JSON un certificado propio identificado por public_id.',
+    parameters=[OpenApiParameter('public_id', type={'type': 'string', 'format': 'uuid'}, location='path')],
+    responses={(200, 'application/json'): CertificateSerializer, 401: UNAUTHENTICATED, 403: FORBIDDEN},
+  ),
+)
 class CertificateViewSet(viewsets.ReadOnlyModelViewSet):
   serializer_class = CertificateSerializer
   permission_classes = (IsAuthenticated,)
@@ -231,6 +340,12 @@ class PublicCertificateVerificationView(APIView):
   permission_classes = (AllowAny,)
   authentication_classes = ()
 
+  @extend_schema(
+    parameters=[OpenApiParameter('public_id', type={'type': 'string', 'format': 'uuid'}, location='path')],
+    responses={200: CertificateSerializer, 404: OpenApiResponse(description='Certificado inexistente.')},
+    description='Verificación pública mínima mediante el parámetro public_id UUID.',
+    auth=[],
+  )
   def get(self, request, public_id):
     certificate = Certificate.objects.select_related('completion').filter(
       public_id=public_id

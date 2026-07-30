@@ -7,14 +7,14 @@ from unittest import mock
 
 from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase
-from rest_framework.schemas.openapi import AutoSchema
+from drf_spectacular.openapi import AutoSchema
 from rest_framework.settings import api_settings
 
 from apialimentaforma.environment import env_bool, env_int, env_json, env_list
 
 
 class RestFrameworkSettingsTests(SimpleTestCase):
-    def test_default_schema_class_resolves_to_openapi_auto_schema(self):
+    def test_default_schema_class_resolves_to_spectacular_auto_schema(self):
         self.assertIs(api_settings.DEFAULT_SCHEMA_CLASS, AutoSchema)
 
 
