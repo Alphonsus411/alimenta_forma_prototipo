@@ -107,7 +107,7 @@ interpretaciones subjetivas.
 - [x] **AF-205B — Límite global de errores:** aislar fallos inesperados de renderizado mediante una recuperación segura y comprobada, sin interferir con los estados HTTP locales de `AsyncState`.
 - [ ] **AF-205C — SEO básico:** definir metadatos generales y específicos por página, URL canónica y datos sociales, y comprobar el resultado generado.
 - [ ] **AF-205D — Auditoría responsive y accesible:** revisar con criterios y anchos reproducibles la navegación, formularios, contraste, foco, landmarks y ausencia de desbordamiento; documentar y corregir los hallazgos.
-- [ ] **AF-206:** revisar dependencias (incluido el paquete redundante `django-rest-framework`) y fijar una política de actualizaciones.
+- [x] **AF-206:** revisar dependencias (incluido el paquete redundante `django-rest-framework`) y fijar una política de actualizaciones. Se retiró `django-rest-framework==0.1.0`: era un paquete contenedor distinto y redundante que dependía de la distribución oficial ya fijada, `djangorestframework==3.15.2`, que proporciona `rest_framework`. La frecuencia, revisión de vulnerabilidades, matriz compatible y responsables de aprobación quedan definidas en [`DEPENDENCIAS.md`](DEPENDENCIAS.md).
 - [x] **AF-207:** integrar drf-spectacular, compatible con las versiones fijadas de Django y DRF, y publicar el esquema OpenAPI y Swagger UI en rutas estables. El contrato documenta sesión, CSRF, parámetros, archivos, validación y permisos; se cerró después de que la prueba validase el esquema y confirmase los endpoints principales.
 
 ## Criterio de acabado
