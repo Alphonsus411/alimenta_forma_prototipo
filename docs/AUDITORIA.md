@@ -10,6 +10,34 @@ Fecha de inicio: 29 de julio de 2026.
 - **Modelo de usuario:** la señal que crea `Profile` no aportaba los campos obligatorios ni una categoría, por lo que crear cualquier usuario producía un error de integridad.
 - **Calidad y seguridad:** `SECRET_KEY`, `DEBUG` y hosts están codificados para desarrollo; la API expone todos los `ModelViewSet` sin permisos explícitos.
 
+## Matriz de rutas, operaciones y roles
+
+La matriz describe lo que la interfaz ofrece actualmente, no capacidades futuras.
+**Público** significa que no requiere sesión, **propio** limita los datos a la
+persona autenticada y **asignado** limita la gestión a cursos del docente. Un
+guion indica que la operación no debe mostrarse ni poder ejecutarse desde esa
+ruta.
+
+| Ruta / operación observable | Anónimo | Alumno | Profesor | Empresa | Administración |
+| --- | --- | --- | --- | --- | --- |
+| `/`, `/about`, `/faqs`, `/jobs`, `/coorp`: consultar información | Público | Permitido | Permitido | Permitido | Permitido |
+| `/courses`, `/courses/:courseId`: consultar catálogo y ficha | Público | Permitido | Permitido | Permitido | Permitido |
+| `/login`, `/register`: iniciar sesión / crear cuenta pública | Permitido | No necesario | No necesario | No necesario | Registro no público |
+| `/profile`: consultar y editar el perfil propio | Identificación requerida | Propio | Propio | Propio | Propio o gestión mediante API administrativa |
+| `/profile`: cerrar sesión | — | Permitido | Permitido | Permitido | Permitido |
+| `/courses/:courseId/registration`: solicitar matrícula individual | Identificación requerida | Propio | — | — | — |
+| `/student`: consultar progreso, asistencia y notas | Identificación requerida | Propio | — | — | Consulta administrativa mediante API |
+| `/courses/:courseId/classroom`: consultar el aula | Identificación requerida | Con matrícula propia | Según asignación en API | — | Permitido por API |
+| `/teacher`: crear o editar cursos | Identificación requerida | — | Asignado | — | Gestión administrativa mediante API |
+| `/teacher`: consultar matrículas y registrar asistencia o notas | Identificación requerida | — | Asignado | — | Gestión administrativa mediante API |
+| `/admin/`: operaciones administrativas de Django | Identificación requerida | — | — | — | Permitido |
+| Cualquier ruta web desconocida: recuperar navegación | Página 404 | Página 404 | Página 404 | Página 404 | Página 404 |
+
+Las pruebas frontend ejercitan las restricciones en términos visibles: destino
+de la navegación, encabezados, mensajes, controles disponibles y resultados de
+las acciones. Las comprobaciones de permisos definitivas permanecen además en
+la suite API, ya que ocultar un control no constituye una barrera de seguridad.
+
 ## Tareas estructuradas
 
 ### P0 — Bloqueos básicos
@@ -33,6 +61,8 @@ Fecha de inicio: 29 de julio de 2026.
 - [x] **AF-121:** sustituir los textos provisionales y definir las páginas públicas de empresas, empleo y área docente conforme a `PRODUCTO.md`, con navegación y pruebas de renderizado y accesibilidad.
 - [x] **AF-122:** incorporar el recorrido web inicial del alumno: ficha y aula del curso, matrícula protegida y panel de progreso con contenidos, asistencia, regularidad, notas y finalización. La interfaz contempla carga, error, ausencia de datos, sesión anónima, duplicados y permisos insuficientes mediante pruebas con API simulada. Las reglas avanzadas de AF-109 y AF-111 a AF-116 continúan pendientes.
 - [x] **AF-123:** implementar el panel restringido del docente para gestionar cursos propios, matrículas, asistencias y calificaciones, representando los errores de dominio de la API y cubriendo el recorrido con pruebas frontend. El panel valida la categoría de la sesión antes de solicitar datos, filtra visualmente los cursos asignados, permite altas y correcciones y anticipa el promedio; la API limita al docente la consulta de matrículas de sus cursos y rechaza notas de alumnos no matriculados.
+- [x] **AF-124:** consolidar pruebas frontend observables para navegación principal, cierre de sesión, rutas protegidas, restricciones por rol, enlaces del perfil, 404, formularios docentes y recorridos de matrícula; fijar una línea base de cobertura global del 90 % en sentencias/líneas, 80 % en funciones y 70 % en ramas.
+- [ ] **AF-125:** elevar gradualmente los umbrales de Vitest sin rebajarlos: primero ramas al 75 % al completar autenticación y errores HTTP, después al 80 % al cubrir permisos por rol; revisar en cada incremento que las aserciones sigan describiendo resultados visibles y no detalles internos.
 
 ### P1 — Ciclo formativo definido en producto
 

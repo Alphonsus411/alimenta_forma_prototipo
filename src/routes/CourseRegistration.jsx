@@ -28,10 +28,12 @@ const CourseRegistration = () => {
   };
 
   const anonymous = error?.status === 401 || error?.status === 403;
+  const wrongRole = data && data.user.category !== "s";
   return <><Header /><main className={styles.main}><h1>Matrícula del curso</h1>
     {anonymous ? <div role="alert"><p>Debes iniciar sesión para matricularte.</p><Link to="/login">Iniciar sesión</Link></div> :
       <AsyncState loading={loading} error={error} empty={!data} emptyMessage="No se encontró el curso." onRetry={reload}>
-        {data && <section className={styles.card}>
+        {wrongRole && <div role="alert"><p>La matrícula individual está disponible únicamente para el rol alumno.</p></div>}
+        {data && !wrongRole && <section className={styles.card}>
           <h2>{data.course.title}</h2><p>Vas a matricular a <strong>{data.user.first_name || data.user.username}</strong>.</p>
           <button className={styles.button} type="button" disabled={submitting || Boolean(result)} onClick={enroll}>{submitting ? "Matriculando…" : "Confirmar matrícula"}</button>
           {result && <p role="status">{result}</p>}

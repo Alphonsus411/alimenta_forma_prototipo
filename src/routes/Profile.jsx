@@ -1,17 +1,21 @@
 import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import ProfileFooter from "../components/ProfileFooter";
 import Title from "../components/Title";
 import AsyncState from "../components/AsyncState";
 import useRemoteResource from "../hooks/useRemoteResource";
+import { logout } from "../services/authApi";
 import { getProfile, updateProfile } from "../services/profileApi";
 
 const Profile = () => {
+	const navigate = useNavigate();
 	const loadProfile = useCallback(() => getProfile(), []);
 	const { data, error, loading, reload, setData } = useRemoteResource(loadProfile);
 	const [saving, setSaving] = useState(false);
 	const [saveError, setSaveError] = useState("");
 	const [saved, setSaved] = useState(false);
+	const [loggingOut, setLoggingOut] = useState(false);
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
@@ -34,6 +38,18 @@ const Profile = () => {
 		}
 	};
 
+	const handleLogout = async () => {
+		setLoggingOut(true);
+		setSaveError("");
+		try {
+			await logout();
+			navigate("/login", { replace: true });
+		} catch (logoutError) {
+			setSaveError(logoutError.message || "No se pudo cerrar la sesión.");
+			setLoggingOut(false);
+		}
+	};
+
 	return (
 		<div>
 			<Header />
@@ -52,6 +68,9 @@ const Profile = () => {
 							<textarea id="profile-description" name="description" defaultValue={data.profile.description} />
 							<button type="submit" disabled={saving}>{saving ? "Guardando…" : "Guardar perfil"}</button>
 						</form>
+						<button type="button" disabled={loggingOut} onClick={handleLogout}>
+							{loggingOut ? "Cerrando sesión…" : "Cerrar sesión"}
+						</button>
 						{saveError && <p role="alert">{saveError}</p>}
 						{saved && <p role="status">Perfil actualizado.</p>}
 					</section>
