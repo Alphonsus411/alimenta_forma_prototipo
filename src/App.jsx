@@ -15,10 +15,12 @@ import CourseClassroom from './routes/CourseClassroom';
 import CourseDetail from './routes/CourseDetail';
 import CourseRegistration from './routes/CourseRegistration';
 import StudentDashboard from './routes/StudentDashboard';
+import NotFound from './routes/NotFound';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
-    <>
+    <ErrorBoundary>
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/login' element={<Login />} />
@@ -35,8 +37,9 @@ function App() {
         <Route path='/jobs' element={<Jobs />} />
         <Route path='/profile' element={<Profile />} />
         <Route path='/teacher' element={<Teacher />} />
+        <Route path='*' element={<NotFound />} />
       </Routes>
-    </>
+    </ErrorBoundary>
   )
 }
 

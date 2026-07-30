@@ -73,7 +73,10 @@ interpretaciones subjetivas.
 - [x] **AF-202:** definir límites reutilizables de tamaño, extensión y tipo MIME para imágenes, CV, documentos, vídeos y anuncios; usar rutas normalizadas con nombres UUID y representar la imagen de perfil ausente sin depender de un archivo predeterminado inexistente.
 - [x] **AF-203:** añadir CI con trabajos separados para frontend y backend que ejecutan lint, build, ambas suites, comprobación de Django y migraciones pendientes. La auditoría automática de dependencias se pospone hasta definir la política de AF-206.
 - [x] **AF-204:** documentar versiones, requisitos, instalación, variables de entorno, migraciones y datos iniciales, arranque/despliegue, comandos de calidad, API y autenticación por sesión con CSRF.
-- [ ] **AF-205:** añadir páginas 404, gestión global de errores, SEO básico y revisión responsive/accesible.
+- [x] **AF-205A — Página 404:** mostrar una ruta de página no encontrada con un mensaje comprensible y una acción para volver al inicio; cubrir la ruta desconocida con una prueba de navegación.
+- [x] **AF-205B — Límite global de errores:** aislar fallos inesperados de renderizado mediante una recuperación segura y comprobada, sin interferir con los estados HTTP locales de `AsyncState`.
+- [ ] **AF-205C — SEO básico:** definir metadatos generales y específicos por página, URL canónica y datos sociales, y comprobar el resultado generado.
+- [ ] **AF-205D — Auditoría responsive y accesible:** revisar con criterios y anchos reproducibles la navegación, formularios, contraste, foco, landmarks y ausencia de desbordamiento; documentar y corregir los hallazgos.
 - [ ] **AF-206:** revisar dependencias (incluido el paquete redundante `django-rest-framework`) y fijar una política de actualizaciones.
 - [ ] **AF-207:** elegir OpenAPI (por ejemplo, una integración mantenida) y restaurar una ruta de documentación de la API; la antigua vista CoreAPI fue retirada por estar obsoleta e incompleta.
 
