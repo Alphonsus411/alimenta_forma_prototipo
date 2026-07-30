@@ -1,0 +1,4 @@
+import PropTypes from "prop-types";
+const AttendanceTable = ({ records, onToggle }) => <section aria-labelledby="attendance-title"><h3 id="attendance-title">Asistencias</h3>{records.length === 0 ? <p>Sin asistencias registradas.</p> : <table><thead><tr><th>Alumno</th><th>Fecha</th><th>Estado</th><th>Corrección</th></tr></thead><tbody>{records.map((item) => <tr key={item.id}><td>{item.student_username || `Alumno #${item.student}`}</td><td>{item.date}</td><td>{item.present ? "Presente" : "Ausente"}</td><td><button type="button" onClick={() => onToggle(item)}>{item.present ? "Marcar ausencia" : "Marcar presencia"}</button></td></tr>)}</tbody></table>}</section>;
+AttendanceTable.propTypes = { records: PropTypes.array.isRequired, onToggle: PropTypes.func.isRequired };
+export default AttendanceTable;

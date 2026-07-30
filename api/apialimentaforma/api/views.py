@@ -151,6 +151,12 @@ class RegistrationViewSet(viewsets.ModelViewSet):
   def get_queryset(self):
     if is_admin(self.request.user):
       return Registration.objects.all()
+    if self.request.method in ('GET', 'HEAD', 'OPTIONS'):
+      try:
+        if self.request.user.profile.userType.category == 'p':
+          return Registration.objects.filter(course__teacher=self.request.user)
+      except (AttributeError, Profile.DoesNotExist, UserType.DoesNotExist):
+        pass
     return Registration.objects.filter(student=self.request.user)
 
   def perform_create(self, serializer):

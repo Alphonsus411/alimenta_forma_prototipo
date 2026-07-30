@@ -40,3 +40,13 @@ class MarkAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
+
+    def test_teacher_cannot_mark_a_student_not_registered_in_course(self):
+        self.client.force_authenticate(self.teacher)
+
+        response = self.client.post(reverse('mark-list'), {
+            'course': self.course.id, 'student': self.other_student.id, 'mark_1': 7,
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('No existe una matrícula', response.data['student'][0])

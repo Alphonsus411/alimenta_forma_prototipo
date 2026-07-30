@@ -32,6 +32,7 @@ Fecha de inicio: 29 de julio de 2026.
 - [x] **AF-106:** incorporar Vitest y React Testing Library en `tests/frontend/` y probar rutas, navegación, formularios, estados de carga/error/vacío y accesibilidad básica.
 - [x] **AF-121:** sustituir los textos provisionales y definir las páginas públicas de empresas, empleo y área docente conforme a `PRODUCTO.md`, con navegación y pruebas de renderizado y accesibilidad.
 - [x] **AF-122:** incorporar el recorrido web inicial del alumno: ficha y aula del curso, matrícula protegida y panel de progreso con contenidos, asistencia, regularidad, notas y finalización. La interfaz contempla carga, error, ausencia de datos, sesión anónima, duplicados y permisos insuficientes mediante pruebas con API simulada. Las reglas avanzadas de AF-109 y AF-111 a AF-116 continúan pendientes.
+- [x] **AF-123:** implementar el panel restringido del docente para gestionar cursos propios, matrículas, asistencias y calificaciones, representando los errores de dominio de la API y cubriendo el recorrido con pruebas frontend. El panel valida la categoría de la sesión antes de solicitar datos, filtra visualmente los cursos asignados, permite altas y correcciones y anticipa el promedio; la API limita al docente la consulta de matrículas de sus cursos y rechaza notas de alumnos no matriculados.
 
 ### P1 — Ciclo formativo definido en producto
 

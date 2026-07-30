@@ -20,7 +20,7 @@ describe('rutas principales', () => {
     ['/register', 'Registro de usuario'],
 		['/coorp', 'Formación para empresas'],
 		['/jobs', 'Oportunidades profesionales'],
-		['/teacher', 'Área docente'],
+		['/teacher', 'Panel docente'],
   ])('renderiza %s con su encabezado accesible', (route, heading) => {
     renderRoute(route);
 
@@ -30,7 +30,6 @@ describe('rutas principales', () => {
 	it.each([
 		['/coorp', 'Solicitar propuesta comercial', 'mailto:empresas@alimentaforma.es'],
 		['/jobs', 'Contactar con empleo', 'mailto:empleo@alimentaforma.es'],
-		['/teacher', 'Acceder como docente', '/login'],
 	])('ofrece una acción accesible en %s', (route, linkName, destination) => {
 		renderRoute(route);
 
@@ -45,15 +44,6 @@ describe('rutas principales', () => {
 		await user.click(screen.getByRole('link', { name: 'Empresas' }));
 
 		expect(screen.getByRole('heading', { name: 'Formación para empresas', level: 1 })).toBeInTheDocument();
-	});
-
-	it('permite acceder desde el área docente al inicio de sesión', async () => {
-		const user = userEvent.setup();
-		renderRoute('/teacher');
-
-		await user.click(screen.getByRole('link', { name: 'Acceder como docente' }));
-
-		expect(screen.getByRole('heading', { name: 'Inicio de Sesión' })).toBeInTheDocument();
 	});
 
   it('navega desde el inicio al catálogo mediante un enlace', async () => {
