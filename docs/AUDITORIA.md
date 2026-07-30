@@ -85,3 +85,9 @@ interpretaciones subjetivas.
 El prototipo no se considerará terminado hasta que los flujos de usuario P1 funcionen de extremo a extremo, los endpoints estén protegidos, la configuración sensible sea externa y CI confirme lint, build, ambas suites, configuración de Django y ausencia de migraciones pendientes.
 
 > La suite backend se ejecuta desde la raíz con `python api/apialimentaforma/manage.py test api.test_suite`; indicar el paquete evita que el directorio contenedor no empaquetado interfiera con el descubrimiento estándar de `unittest`.
+
+> **Avance de AF-205D (30/07/2026):** la cabecera usa landmarks semánticos,
+> identifica la página activa y expone el control del menú móvil con nombre,
+> estado y relación accesibles. El menú cerrado deja de incluir enlaces fuera de
+> pantalla en el orden de tabulación y el botón dispone de foco visible. La
+> auditoría integral de las demás vistas y anchos continúa pendiente.
