@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from api.models import Course, UserType
+from api.models import Course, CourseCategory, UserType
 
 
 class CourseAPITests(APITestCase):
@@ -19,11 +19,17 @@ class CourseAPITests(APITestCase):
         cls.course = Course.objects.create(
             title='Manipulación', detail='Inicial', classes=3, teacher=cls.teacher
         )
+        cls.category = CourseCategory.objects.get(name='Manipulación de alimentos')
 
     def test_teacher_completes_authorized_crud(self):
         self.client.force_authenticate(self.teacher)
         created = self.client.post(reverse('course-list'), {
             'title': 'Nutrición', 'detail': 'Nuevo', 'classes': 4,
+            'category': self.category.id, 'modality': 'online',
+            'duration_hours': '8.00', 'start_date': '2026-09-01',
+            'end_date': '2026-09-02', 'capacity': 20,
+            'location': 'https://campus.example', 'price': '25.00',
+            'objectives': 'Planificar menús.', 'requirements': 'Sin requisitos',
         }, format='json')
         self.assertEqual(created.status_code, status.HTTP_201_CREATED)
         self.assertEqual(created.data['teacher'], self.teacher.id)

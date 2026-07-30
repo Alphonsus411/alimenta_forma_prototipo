@@ -21,6 +21,11 @@ class DomainSerializerTests(TestCase):
         serializer = CourseSerializer(data={
             'title': 'Cocina', 'detail': 'Curso', 'classes': 2,
             'teacher': self.student.id,
+            'category': self.course.category_id, 'modality': 'online',
+            'duration_hours': '3.00', 'start_date': '2026-09-01',
+            'end_date': '2026-09-02', 'capacity': 12,
+            'location': 'Campus', 'price': '0.00', 'objectives': 'Aprender.',
+            'requirements': 'Sin requisitos',
         })
 
         self.assertTrue(serializer.is_valid(), serializer.errors)

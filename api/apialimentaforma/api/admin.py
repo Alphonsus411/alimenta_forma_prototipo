@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserType, Profile, Offer, Announcement, Course, Content, Registration, Attendance, Mark
+from .models import UserType, Profile, Offer, Announcement, Course, CourseCategory, CourseLesson, Content, Registration, Attendance, Mark
 
 # Register your models here.
 
@@ -27,9 +27,14 @@ class ContentAdmin(admin.ModelAdmin):
     search_fields = ('title', 'comment')
 admin.site.register(Content, ContentAdmin)
 
+class CourseLessonInline(admin.TabularInline):
+    model = CourseLesson
+    extra = 0
+
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('title', 'detail', 'classes', 'teacher', 'status', 'content')
-    list_filter = ('teacher', 'status')
+    list_display = ('title', 'category', 'modality', 'start_date', 'end_date', 'capacity', 'price', 'teacher', 'status')
+    list_filter = ('category', 'modality', 'status', 'teacher')
+    inlines = (CourseLessonInline,)
     search_fields = ('title', 'detail', 'teacher__username')
 admin.site.register(Course, CourseAdmin)
 
@@ -50,3 +55,5 @@ class MarkAdmin(admin.ModelAdmin):
     list_filter = ('course', 'student', 'average')  
     search_fields = ('student__username', 'course__title') 
 admin.site.register(Mark, MarkAdmin)
+admin.site.register(CourseCategory)
+admin.site.register(CourseLesson)

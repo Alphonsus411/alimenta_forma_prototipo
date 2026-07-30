@@ -5,7 +5,8 @@ from django.db import transaction
 from rest_framework import serializers
 
 from .roles import PUBLIC_REGISTRATION_ROLES
-from .models import UserType, Profile, Offer, Announcement, Content, Course, Registration, Attendance, Mark
+from .permissions import is_admin
+from .models import UserType, Profile, Offer, Announcement, Content, Course, CourseLesson, Registration, Attendance, Mark
 from .services.attendance import AttendanceDomainError, validate_attendance_context
 
 class UserTypeSerializer (serializers.ModelSerializer):
@@ -35,11 +36,53 @@ class ContentSerializer (serializers.ModelSerializer):
     model = Content
     fields = '__all__'
 
-class CourseSerializer (serializers.ModelSerializer):
+class CourseLessonSerializer(serializers.ModelSerializer):
+  title = serializers.CharField(source='content.title', read_only=True)
+  comment = serializers.CharField(source='content.comment', read_only=True)
+
+  class Meta:
+    model = CourseLesson
+    fields = ('id', 'content', 'order', 'title', 'comment')
+
+
+class CourseSerializer(serializers.ModelSerializer):
+  lessons = CourseLessonSerializer(many=True, read_only=True)
+  teacher_name = serializers.CharField(source='teacher.get_full_name', read_only=True)
+  category_name = serializers.CharField(source='category.name', read_only=True)
+  modality_display = serializers.CharField(source='get_modality_display', read_only=True)
+  status_display = serializers.CharField(source='get_status_display', read_only=True)
+
+  def validate(self, attrs):
+    requested_status = attrs.get('status')
+    if requested_status in (Course.Status.PUBLISHED, Course.Status.CANCELLED, Course.Status.CLOSED):
+      request = self.context.get('request')
+      if not request or not is_admin(request.user):
+        raise serializers.ValidationError({
+          'status': 'Solo administración puede publicar, cancelar o cerrar cursos.'
+        })
+    request = self.context.get('request')
+    if not self.instance and not request:
+      return attrs
+    instance = self.instance or Course(teacher=request.user)
+    for field, value in attrs.items():
+      setattr(instance, field, value)
+    try:
+      instance.clean()
+    except DjangoValidationError as error:
+      raise serializers.ValidationError(error.message_dict) from error
+    return attrs
+
   class Meta:
     model = Course
     fields = '__all__'
     read_only_fields = ('teacher',)
+    extra_kwargs = {
+      field: {'required': True}
+      for field in (
+        'category', 'modality', 'duration_hours', 'start_date', 'end_date',
+        'capacity', 'location', 'price', 'objectives', 'requirements',
+      )
+    }
 
 class RegistrationSerializer (serializers.ModelSerializer):
   student_username = serializers.CharField(source='student.username', read_only=True)
